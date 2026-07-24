@@ -1,0 +1,59 @@
+---
+import ExternalLink from "../components/ExternalLink.astro";
+import { SITE } from "../config/site";
+import TrustPageLayout from "../layouts/TrustPageLayout.astro";
+---
+
+<TrustPageLayout
+  title="免責聲明"
+  description="界定本站內容的教育用途、風險限制與使用者責任。"
+  canonicalPath="/disclaimer"
+  eyebrow="DISCLAIMER"
+  updatedAt="2026 年 7 月 24 日"
+>
+  <p class="notice">{SITE.disclaimer}</p>
+
+  <section>
+    <h2>非專業或個別建議</h2>
+    <p>
+      本站內容僅供教育、研究與資訊參考，不構成投資、財務、稅務、法律、醫療、投注或其他專業建議，也不會依個別使用者的需求、財務狀況或風險承受度提供建議。
+    </p>
+  </section>
+
+  <section>
+    <h2>不保證結果</h2>
+    <p>
+      任何案例、回測、預測、模型、工具或歷史結果，都不代表未來表現。本站不保證獲利、收入、中獎、資料完整性、模型準確度、財富自由或任何特定成果。使用者應獨立查證並自行承擔決策風險。
+    </p>
+  </section>
+
+  <section>
+    <h2>彩券與投注風險</h2>
+    <p>
+      彩券結果具有隨機性，任何分析都無法消除不確定性。以全部投注者長期整體而言，獎金分配低於總投注金額時，期望報酬即為負值；短期中獎不改變這項風險。請只使用可承受損失的娛樂預算，不借貸、不追損，也不要把彩券視為收入來源。
+    </p>
+    <p>
+      本站彩券相關內容僅供成年人閱讀與理性娛樂。依台灣彩券官方規定，未滿 18
+      歲不得購買或兌領彩券；使用者也應遵守所在地法律與官方規定。如感到投注失去控制，請停止並尋求當地合格的支持資源。
+    </p>
+    <p>
+      <ExternalLink href="https://www.taiwanlottery.com/">
+        台灣彩券官方網站與年齡限制
+      </ExternalLink>
+    </p>
+  </section>
+
+  <section>
+    <h2>外部資料與服務</h2>
+    <p>
+      本站可能引用或連結第三方資料、API、網站與工具。即使發布時已查核，第三方內容仍可能變更、中斷或有誤；本站不控制其持續可用性、交易安全或政策。
+    </p>
+  </section>
+
+  <section>
+    <h2>使用者責任</h2>
+    <p>
+      使用者在採取任何可能造成金錢、法律、健康或資料風險的行動前，應查閱最新官方資訊，並視需要諮詢具資格的專業人士。
+    </p>
+  </section>
+</TrustPageLayout>

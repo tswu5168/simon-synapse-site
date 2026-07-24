@@ -1,0 +1,39 @@
+---
+import ExternalLink from "../components/ExternalLink.astro";
+import { SITE } from "../config/site";
+import TrustPageLayout from "../layouts/TrustPageLayout.astro";
+---
+
+<TrustPageLayout
+  title="聯絡 Simon Synapse"
+  description="提供網站內容、作品合作與錯誤回報的公開聯絡管道。"
+  canonicalPath="/contact"
+  eyebrow="CONTACT"
+  updatedAt="2026 年 7 月 24 日"
+>
+  <section>
+    <h2>公開聯絡管道</h2>
+    <p>
+      目前請透過
+      <ExternalLink href={SITE.githubUrl}>GitHub 個人頁面</ExternalLink>
+      的公開專案、Issue 或個人檔案中已公開的管道聯絡。本站不在此刊登未經確認的電子郵件地址。
+    </p>
+  </section>
+
+  <section>
+    <h2>適合聯絡的事項</h2>
+    <ul>
+      <li>文章中的事實、連結、日期或技術錯誤。</li>
+      <li>作品無法使用、顯示異常或無障礙問題。</li>
+      <li>合理的內容合作、技術交流或授權詢問。</li>
+      <li>隱私權、著作權或本站政策相關問題。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>回覆與處理原則</h2>
+    <p>
+      作者會依問題明確度、影響範圍與可用時間處理，但無法保證回覆時間或逐件回覆。回報錯誤時，請附上頁面網址、發生時間、操作方式與可公開的畫面資訊；請勿提交密碼、憑證或其他敏感個人資料。
+    </p>
+  </section>
+</TrustPageLayout>

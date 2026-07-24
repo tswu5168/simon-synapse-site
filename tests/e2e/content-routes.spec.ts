@@ -44,3 +44,25 @@ test("project detail exposes status and the separately labeled live work", async
     page.getByRole("link", { name: "開啟實際作品 （另開新視窗）", exact: true }),
   ).toHaveAttribute("href", "https://example.com/");
 });
+
+for (const [route, heading] of [
+  ["/about", "關於 Simon Synapse"],
+  ["/contact", "聯絡 Simon Synapse"],
+  ["/privacy", "隱私權政策"],
+  ["/terms", "網站使用條款"],
+  ["/editorial-policy", "編輯政策"],
+  ["/disclaimer", "免責聲明"],
+  ["/404", "找不到這個頁面"],
+] as const) {
+  test(`${route} is a readable, ad-free trust page`, async ({ page }) => {
+    const response = await page.goto(route);
+    await expect(
+      page.getByRole("heading", { name: heading, exact: true }),
+    ).toBeVisible();
+    await expect(page.locator("main h1")).toHaveCount(1);
+    await expect(page.locator(".adsbygoogle")).toHaveCount(0);
+    if (route === "/404") {
+      expect(response?.status()).toBe(404);
+    }
+  });
+}

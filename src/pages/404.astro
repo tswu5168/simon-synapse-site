@@ -1,0 +1,28 @@
+---
+import TrustPageLayout from "../layouts/TrustPageLayout.astro";
+---
+
+<TrustPageLayout
+  title="找不到這個頁面"
+  description="這個網址可能已變更、內容尚未發布，或輸入的連結不正確。"
+  canonicalPath="/404"
+  eyebrow="ERROR 404"
+>
+  <section>
+    <h2>從這裡繼續探索</h2>
+    <p>你可以返回首頁，或直接前往文章與作品列表。</p>
+    <nav class="recovery-links" aria-label="404 頁面導覽">
+      <a class="button" href="/">返回首頁</a>
+      <a class="button" href="/insights">瀏覽文章</a>
+      <a class="button" href="/projects">瀏覽作品</a>
+    </nav>
+  </section>
+</TrustPageLayout>
+
+<style>
+  .recovery-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+</style>

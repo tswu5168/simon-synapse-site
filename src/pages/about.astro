@@ -1,0 +1,60 @@
+---
+import ExternalLink from "../components/ExternalLink.astro";
+import { SITE } from "../config/site";
+import TrustPageLayout from "../layouts/TrustPageLayout.astro";
+import { profileJsonLd } from "../lib/seo";
+---
+
+<TrustPageLayout
+  title="關於 Simon Synapse"
+  description="一個以實作、查證與長期累積為核心的個人內容基地。"
+  canonicalPath="/about"
+  eyebrow="ABOUT"
+  updatedAt="2026 年 7 月 24 日"
+  jsonLd={profileJsonLd()}
+>
+  <section>
+    <h2>為什麼建立這個網站</h2>
+    <p>
+      Simon Synapse 的目標，是把 AI 從話題轉化為能實際使用、持續改進與反覆驗證的工具。本站以「{SITE.tagline}」為長期方向，但不把口號包裝成收益承諾。
+    </p>
+    <p>
+      這裡會整理 AI 工具、資料研究、開發紀錄與個人作品。每篇內容都應該回答：解決什麼問題、採用什麼方法、證據來自哪裡，以及還有哪些限制。
+    </p>
+  </section>
+
+  <section>
+    <h2>關於作者</h2>
+    <p>
+      本站內容作者與最終編輯者為「{SITE.author}」。文章與作品源自個人的問題意識、實務經驗與創作發想，並以可讀、可查證的方式公開。
+    </p>
+    <p>
+      已公開的程式與專案可由
+      <ExternalLink href={SITE.githubUrl}>GitHub 個人頁面</ExternalLink>
+      進一步查閱；個別作品是否開放原始碼，會在作品頁另行說明。
+    </p>
+  </section>
+
+  <section>
+    <h2>創作與查證方法</h2>
+    <ol>
+      <li>先定義真實問題、使用情境與判斷標準。</li>
+      <li>優先查閱官方文件、第一手資料與可重現的測試結果。</li>
+      <li>清楚區分事實、個人觀點、推測與尚待驗證的部分。</li>
+      <li>發布前由作者人工審閱，重要修正會更新日期或補充說明。</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>AI 協作揭露</h2>
+    <p>
+      本站可能使用 AI 協助研究整理、程式開發、文字草擬與版面製作。AI
+      不是作者，也不負責最終判斷；題目選擇、來源核對、內容取捨與發布決定，均由作者負責。
+    </p>
+    <p>
+      個別文章若有 AI 協作，會在內容頁明確標示。詳細原則請參閱<a href="/editorial-policy">編輯政策</a>。
+    </p>
+  </section>
+
+  <p class="notice">{SITE.disclaimer}</p>
+</TrustPageLayout>

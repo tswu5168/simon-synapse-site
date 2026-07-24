@@ -1,0 +1,93 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  eyebrow: string;
+  updatedAt?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  canonicalPath,
+  eyebrow,
+  updatedAt,
+  jsonLd,
+} = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath={canonicalPath}
+  jsonLd={jsonLd}
+  loadAds={false}
+>
+  <article class="trust-page container">
+    <header class="page-hero reading-column">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      {updatedAt && <p class="updated">最後更新：{updatedAt}</p>}
+    </header>
+
+    <div class="trust-content reading-column">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .trust-page {
+    padding-block-end: 4rem;
+  }
+
+  .lead,
+  .updated {
+    color: var(--text-muted);
+  }
+
+  .updated {
+    font-size: 0.88em;
+  }
+
+  .trust-content {
+    padding-block: 1rem 3rem;
+  }
+
+  :global(.trust-content section) {
+    margin-block: 0 3rem;
+    border-block-start: 1px solid var(--border);
+    padding-block-start: 2rem;
+  }
+
+  :global(.trust-content h2) {
+    font-size: clamp(
+      calc(1.55rem * var(--font-scale)),
+      calc(3vw * var(--font-scale)),
+      calc(2.25rem * var(--font-scale))
+    );
+  }
+
+  :global(.trust-content h3) {
+    margin-block-start: 2rem;
+    font-size: calc(1.25rem * var(--font-scale));
+  }
+
+  :global(.trust-content li) {
+    margin-block-end: 0.5rem;
+  }
+
+  :global(.trust-content .notice) {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    color: var(--text-muted);
+    background: var(--surface-glass);
+    box-shadow: var(--shadow-glow);
+  }
+</style>
