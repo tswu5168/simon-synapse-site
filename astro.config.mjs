@@ -9,5 +9,8 @@ export default defineConfig({
   markdown: {
     processor: unified(),
   },
+  devToolbar: {
+    enabled: false,
+  },
   trailingSlash: "never",
 });
