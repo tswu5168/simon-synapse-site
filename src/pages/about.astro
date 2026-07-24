@@ -1,5 +1,4 @@
 ---
-import ExternalLink from "../components/ExternalLink.astro";
 import { SITE } from "../config/site";
 import TrustPageLayout from "../layouts/TrustPageLayout.astro";
 import { profileJsonLd } from "../lib/seo";
@@ -27,11 +26,6 @@ import { profileJsonLd } from "../lib/seo";
     <h2>關於作者</h2>
     <p>
       本站內容作者與最終編輯者為「{SITE.author}」。文章與作品源自個人的問題意識、實務經驗與創作發想，並以可讀、可查證的方式公開。
-    </p>
-    <p>
-      已公開的程式與專案可由
-      <ExternalLink href={SITE.githubUrl}>GitHub 個人頁面</ExternalLink>
-      進一步查閱；個別作品是否開放原始碼，會在作品頁另行說明。
     </p>
   </section>
 
