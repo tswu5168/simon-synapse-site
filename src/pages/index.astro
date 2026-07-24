@@ -1,12 +1,14 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { SITE } from "../config/site";
+import { profileJsonLd } from "../lib/seo";
 ---
 
 <BaseLayout
   title={SITE.name}
   description={SITE.description}
   canonicalPath="/"
+  jsonLd={profileJsonLd()}
 >
   <section class="hero container" aria-labelledby="hero-title">
     <div class="signal-orbit" aria-hidden="true">
