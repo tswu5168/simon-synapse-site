@@ -38,11 +38,30 @@ test("detail page exposes author, dates, sources, and AI disclosure", async ({
 test("project detail exposes status and the separately labeled live work", async ({
   page,
 }) => {
-  await page.goto("/projects/fixture");
+  await page.goto("/projects/xiaosai-ai-lottery");
   await expect(page.getByText("狀態：持續改進", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "開啟實際作品 （另開新視窗）", exact: true }),
-  ).toHaveAttribute("href", "https://example.com/");
+  ).toHaveAttribute("href", "https://lotto.simonsynapse.net/");
+});
+
+test("preview exposes all five verified project drafts", async ({ page }) => {
+  const projectSlugs = [
+    "xiaosai-ai-lottery",
+    "fifa-ai-prediction",
+    "ssa-compressor",
+    "exam-roadmap",
+    "matt-pocock-skills-guide",
+  ];
+
+  await page.goto("/projects");
+  await expect(page.locator(".content-card")).toHaveCount(5);
+
+  for (const slug of projectSlugs) {
+    await page.goto(`/projects/${slug}`);
+    await expect(page.locator("main h1")).toHaveCount(1);
+    await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
+  }
 });
 
 for (const [route, heading] of [
