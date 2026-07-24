@@ -29,3 +29,12 @@ test("home has a skip link, one main landmark, and no horizontal overflow", asyn
     `溢出元素：${JSON.stringify(overflowingElements)}`,
   ).toBeLessThanOrEqual(widths.client);
 });
+
+test("footer omits removed contact, RSS, and GitHub items", async ({ page }) => {
+  await page.goto("/");
+  await expect(
+    page.locator(
+      'footer a[href="/contact"], footer a[href="/rss.xml"], footer a[href*="github.com"]',
+    ),
+  ).toHaveCount(0);
+});
