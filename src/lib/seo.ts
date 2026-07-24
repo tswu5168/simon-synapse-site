@@ -44,3 +44,31 @@ export function articleJsonLd(input: {
     },
   };
 }
+
+export function creativeWorkJsonLd(input: {
+  title: string;
+  description: string;
+  pathname: string;
+  publishedAt: Date;
+  updatedAt: Date;
+  image: string;
+  projectUrl: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: input.title,
+    description: input.description,
+    url: absoluteUrl(input.pathname),
+    image: absoluteUrl(input.image),
+    datePublished: input.publishedAt.toISOString(),
+    dateModified: input.updatedAt.toISOString(),
+    inLanguage: SITE.locale,
+    author: {
+      "@type": "Person",
+      name: SITE.author,
+      url: absoluteUrl("/about"),
+    },
+    sameAs: input.projectUrl,
+  };
+}

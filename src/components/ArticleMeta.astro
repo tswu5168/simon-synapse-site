@@ -1,0 +1,62 @@
+---
+interface Props {
+  author: string;
+  publishedAt: Date;
+  updatedAt: Date;
+  aiAssisted: boolean;
+}
+
+const { author, publishedAt, updatedAt, aiAssisted } = Astro.props;
+const formatter = new Intl.DateTimeFormat("zh-TW", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<section class="article-meta" aria-label="文章資訊">
+  <p>作者：{author}</p>
+  <p>
+    發布日期：<time datetime={publishedAt.toISOString()}>{formatter.format(publishedAt)}</time>
+  </p>
+  <p>
+    更新日期：<time datetime={updatedAt.toISOString()}>{formatter.format(updatedAt)}</time>
+  </p>
+  <div class="ai-disclosure">
+    <strong>AI 協作揭露</strong>
+    <p>
+      {
+        aiAssisted
+          ? "本文曾使用 AI 協助研究、整理或編修，最終內容由作者人工查核並核准。"
+          : "本文未標示 AI 協作；內容仍由作者負責查核與修訂。"
+      }
+    </p>
+  </div>
+</section>
+
+<style>
+  .article-meta {
+    display: grid;
+    gap: 0.5rem;
+    margin-block: 2rem;
+    border-block: 1px solid var(--border);
+    padding-block: 1.5rem;
+    color: var(--text-muted);
+  }
+
+  .article-meta > p,
+  .ai-disclosure p {
+    margin: 0;
+  }
+
+  .ai-disclosure {
+    margin-block-start: 0.75rem;
+    border-left: 0.25rem solid var(--violet);
+    padding: 0.75rem 1rem;
+    background: rgb(155 123 255 / 8%);
+  }
+
+  .ai-disclosure strong {
+    color: var(--text);
+  }
+</style>

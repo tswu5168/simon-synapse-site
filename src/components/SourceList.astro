@@ -1,0 +1,38 @@
+---
+import ExternalLink from "./ExternalLink.astro";
+
+interface Props {
+  sources: Array<{ title: string; url: string }>;
+}
+
+const { sources } = Astro.props;
+---
+
+<section class="source-list reading-column" aria-labelledby="sources-heading">
+  <h2 id="sources-heading">參考來源</h2>
+  <ol>
+    {
+      sources.map((source) => (
+        <li>
+          <ExternalLink href={source.url}>{source.title}</ExternalLink>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .source-list {
+    margin-block-start: 3rem;
+    border-top: 1px solid var(--border);
+    padding-block-start: 2rem;
+  }
+
+  h2 {
+    font-size: calc(1.65rem * var(--font-scale));
+  }
+
+  li + li {
+    margin-block-start: 0.75rem;
+  }
+</style>

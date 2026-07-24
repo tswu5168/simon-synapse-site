@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+import { selectVisibleEntries } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("insights");
+  const visible = selectVisibleEntries(entries, {
+    showDrafts: import.meta.env.PUBLIC_SHOW_DRAFTS === "true",
+  });
+  return visible.map((entry) => ({
+    params: { slug: entry.id.replace(/\.(md|mdx)$/, "") },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"insights">;
+}
+
+const { entry } = Astro.props;
+const slug = entry.id.replace(/\.(md|mdx)$/, "");
+const { Content } = await render(entry);
+---
+
+<ArticleLayout entry={entry} kind="insight" pathname={`/insights/${slug}`}>
+  <Content />
+</ArticleLayout>

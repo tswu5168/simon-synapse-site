@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { absoluteUrl, articleJsonLd, profileJsonLd } from "../../src/lib/seo";
+import {
+  absoluteUrl,
+  articleJsonLd,
+  creativeWorkJsonLd,
+  profileJsonLd,
+} from "../../src/lib/seo";
 
 describe("SEO helpers", () => {
   it("builds production URLs", () => {
@@ -26,6 +31,24 @@ describe("SEO helpers", () => {
     ).toMatchObject({
       "@type": "BlogPosting",
       url: "https://simonsynapse.net/insights/test",
+      author: { name: "賽腦耶" },
+    });
+  });
+
+  it("builds project data as a CreativeWork", () => {
+    expect(
+      creativeWorkJsonLd({
+        title: "作品案例詳細頁測試內容",
+        description: "這是一段用於驗證作品結構化資料的完整說明文字。",
+        pathname: "/projects/fixture",
+        publishedAt: new Date("2026-07-24T00:00:00+08:00"),
+        updatedAt: new Date("2026-07-24T00:00:00+08:00"),
+        image: "/images/og/simon-synapse-default.png",
+        projectUrl: "https://example.com/",
+      }),
+    ).toMatchObject({
+      "@type": "CreativeWork",
+      url: "https://simonsynapse.net/projects/fixture",
       author: { name: "賽腦耶" },
     });
   });
