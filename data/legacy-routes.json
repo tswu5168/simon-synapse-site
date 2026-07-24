@@ -1,5 +1,22 @@
 {
-  "capturedAt": "2026-07-24",
-  "source": "https://simonsynapse.net/",
-  "routes": []
+  "capturedAt": "2026-07-24T04:23:51.753Z",
+  "source": "https://simonsynapse.net/sitemap.xml",
+  "routes": [
+    "/",
+    "/about.html",
+    "/ai-lottery-guide.html",
+    "/contact.html",
+    "/faq.html",
+    "/game-daily539.html",
+    "/game-lotto649.html",
+    "/game-superlotto.html",
+    "/glossary.html",
+    "/guide-balanced.html",
+    "/guide-heartbeat.html",
+    "/guide-lstm-markov.html",
+    "/guide-no-edge.html",
+    "/guide-randomness.html",
+    "/guides.html",
+    "/privacy"
+  ]
 }
