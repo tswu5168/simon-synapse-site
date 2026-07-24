@@ -1,9 +1,10 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import AdSlot from "../components/AdSlot.astro";
 import ArticleMeta from "../components/ArticleMeta.astro";
 import ExternalLink from "../components/ExternalLink.astro";
 import SourceList from "../components/SourceList.astro";
-import { SITE } from "../config/site";
+import { isAdEligible, SITE } from "../config/site";
 import {
   articleJsonLd,
   creativeWorkJsonLd,
@@ -25,6 +26,9 @@ const projectData =
   kind === "project" && "projectUrl" in entry.data ? entry.data : undefined;
 const parentPath = kind === "insight" ? "/insights" : "/projects";
 const parentLabel = kind === "insight" ? "觀點與教學" : "作品案例";
+const adsEligible = isAdEligible(pathname);
+const inlineSlot = import.meta.env.PUBLIC_AD_SLOT_INLINE ?? "";
+const endSlot = import.meta.env.PUBLIC_AD_SLOT_END ?? "";
 const jsonLd = projectData
   ? creativeWorkJsonLd({
       title: entry.data.title,
@@ -51,6 +55,7 @@ const jsonLd = projectData
   canonicalPath={pathname}
   image={entry.data.socialImage}
   jsonLd={jsonLd}
+  loadAds={adsEligible}
 >
   <article class="article-shell container">
     <nav class="breadcrumbs" aria-label="麵包屑">
@@ -86,11 +91,14 @@ const jsonLd = projectData
       />
     </header>
 
+    <AdSlot slot={inlineSlot} pathname={pathname} />
+
     <div class="article-body reading-column">
       <slot />
     </div>
 
     <SourceList sources={entry.data.sources} />
+    <AdSlot slot={endSlot} pathname={pathname} />
 
     <aside class="disclaimer reading-column" aria-label="固定聲明">
       <strong>內容聲明</strong>

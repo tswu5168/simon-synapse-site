@@ -1,0 +1,42 @@
+---
+import { ADS, isAdEligible } from "../config/site";
+
+interface Props {
+  slot: string;
+  pathname: string;
+}
+
+const { slot, pathname } = Astro.props;
+const allowed = isAdEligible(pathname) && Boolean(slot);
+---
+
+{
+  allowed && (
+    <aside class="ad-region reading-column" aria-label="廣告">
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client={ADS.clientId}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </aside>
+  )
+}
+
+{
+  allowed && (
+    <script is:inline>
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  )
+}
+
+<style>
+  .ad-region {
+    min-height: 5rem;
+    margin-block: 2.5rem;
+    overflow: hidden;
+  }
+</style>

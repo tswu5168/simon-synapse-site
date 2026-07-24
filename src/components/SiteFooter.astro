@@ -1,5 +1,12 @@
 ---
+import ConsentManager from "./ConsentManager.astro";
 import { SITE } from "../config/site";
+
+interface Props {
+  consentEnabled?: boolean;
+}
+
+const { consentEnabled = false } = Astro.props;
 ---
 
 <footer class="site-footer">
@@ -16,6 +23,7 @@ import { SITE } from "../config/site";
       <a href="/terms">網站條款</a>
       <a href="/editorial-policy">編輯政策</a>
       <a href="/disclaimer">免責聲明</a>
+      <ConsentManager enabled={consentEnabled} />
     </nav>
   </div>
 </footer>

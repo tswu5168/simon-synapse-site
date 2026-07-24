@@ -1,0 +1,35 @@
+---
+interface Props {
+  enabled: boolean;
+}
+
+const { enabled } = Astro.props;
+---
+
+{
+  enabled && (
+    <button id="privacy-settings" type="button" hidden>
+      隱私權與 Cookie 設定
+    </button>
+  )
+}
+
+{
+  enabled && (
+    <script is:inline>
+      window.googlefc = window.googlefc || {};
+      window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+      window.googlefc.callbackQueue.push({
+        CONSENT_API_READY: () => {
+          const button = document.querySelector("#privacy-settings");
+          if (button instanceof HTMLButtonElement) {
+            button.hidden = false;
+            button.addEventListener("click", () =>
+              window.googlefc.showRevocationMessage(),
+            );
+          }
+        },
+      });
+    </script>
+  )
+}
