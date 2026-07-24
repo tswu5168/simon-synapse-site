@@ -27,7 +27,7 @@ test("content index routes are available", async ({ page }) => {
 test("detail page exposes author, dates, sources, and AI disclosure", async ({
   page,
 }) => {
-  await page.goto("/insights/fixture");
+  await page.goto("/insights/why-simon-synapse");
   await expect(page.getByText("作者：賽腦耶", { exact: true })).toBeVisible();
   await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
   await expect(
@@ -59,6 +59,26 @@ test("preview exposes all five verified project drafts", async ({ page }) => {
 
   for (const slug of projectSlugs) {
     await page.goto(`/projects/${slug}`);
+    await expect(page.locator("main h1")).toHaveCount(1);
+    await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
+  }
+});
+
+test("preview exposes all six original insight drafts", async ({ page }) => {
+  const insightSlugs = [
+    "why-simon-synapse",
+    "idea-to-real-product",
+    "ai-tools-as-digital-assets",
+    "privacy-first-local-video-compression",
+    "honest-prediction-models",
+    "designing-an-actionable-exam-roadmap",
+  ];
+
+  await page.goto("/insights");
+  await expect(page.locator(".content-card")).toHaveCount(6);
+
+  for (const slug of insightSlugs) {
+    await page.goto(`/insights/${slug}`);
     await expect(page.locator("main h1")).toHaveCount(1);
     await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
   }
