@@ -1,0 +1,36 @@
+<button type="button" id="font-size-control" aria-pressed="false">
+  切換為大字
+</button>
+
+<script>
+  const key = "simon-font-scale";
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>("#font-size-control");
+
+  const apply = (value: "standard" | "large") => {
+    root.dataset.fontScale = value;
+    if (button) {
+      const isLarge = value === "large";
+      button.ariaPressed = String(isLarge);
+      button.textContent = isLarge ? "切換為標準字" : "切換為大字";
+    }
+  };
+
+  let saved: "standard" | "large" = "standard";
+  try {
+    saved = localStorage.getItem(key) === "large" ? "large" : "standard";
+  } catch {
+    saved = "standard";
+  }
+  apply(saved);
+
+  button?.addEventListener("click", () => {
+    const next = root.dataset.fontScale === "large" ? "standard" : "large";
+    try {
+      localStorage.setItem(key, next);
+    } catch {
+      // 即使無法使用本機儲存，當頁字級切換與易讀預設值仍可運作。
+    }
+    apply(next);
+  });
+</script>

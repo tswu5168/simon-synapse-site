@@ -1,0 +1,68 @@
+---
+import { SITE } from "../config/site";
+import ExternalLink from "./ExternalLink.astro";
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <p class="footer-brand">{SITE.name}</p>
+      <p class="footer-copy">{SITE.tagline}</p>
+      <p class="footer-copy">內容作者：{SITE.author}</p>
+    </div>
+
+    <nav aria-label="頁尾導覽">
+      <a href="/about">關於本站</a>
+      <a href="/contact">聯絡方式</a>
+      <a href="/privacy">隱私權政策</a>
+      <a href="/terms">網站條款</a>
+      <a href="/editorial-policy">編輯政策</a>
+      <a href="/disclaimer">免責聲明</a>
+      <a href="/rss.xml">RSS</a>
+      <ExternalLink href={SITE.githubUrl}>GitHub</ExternalLink>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-block-start: 5rem;
+    border-top: 1px solid var(--border);
+    background: rgb(5 8 22 / 88%);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: 2rem;
+    padding-block: 2.5rem;
+  }
+
+  .footer-brand {
+    margin-block-end: 0.25rem;
+    color: var(--text);
+    font-weight: 800;
+  }
+
+  .footer-copy {
+    margin-block-end: 0.35rem;
+    color: var(--text-muted);
+  }
+
+  nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.5rem 1rem;
+  }
+
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+  }
+
+  @media (min-width: 64rem) {
+    .footer-grid {
+      grid-template-columns: minmax(17rem, 0.8fr) minmax(32rem, 1.2fr);
+    }
+  }
+</style>

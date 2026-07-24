@@ -1,0 +1,32 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHead from "../components/SiteHead.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  image?: string;
+  jsonLd?: Record<string, unknown>;
+  loadAds?: boolean;
+}
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <SiteHead {...props} />
+  </head>
+  <body>
+    <a class="skip-link button" href="#main-content">跳至主要內容</a>
+    <SiteHeader />
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
