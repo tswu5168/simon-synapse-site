@@ -1,0 +1,37 @@
+---
+import { getCollection } from "astro:content";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { SITE } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { selectVisibleEntries, sortNewestFirst } from "../../lib/content";
+
+const entries = sortNewestFirst(
+  selectVisibleEntries(await getCollection("projects"), {
+    showDrafts: import.meta.env.PUBLIC_SHOW_DRAFTS === "true",
+  }),
+);
+---
+
+<BaseLayout
+  title="作品案例"
+  description="Simon Synapse 的 AI 工具、資料研究與數位作品案例，包含方法、設計選擇、限制及後續方向。"
+  canonicalPath="/projects"
+>
+  <header class="page-hero container">
+    <p class="eyebrow">{SITE.name} Build Log</p>
+    <h1>作品案例</h1>
+    <p>共 {entries.length} 個已發布案例。作品頁與案例文章分開呈現，方便查閱方法與實際成果。</p>
+  </header>
+
+  <section class="content-section container" aria-label="作品列表">
+    {
+      entries.length > 0 ? (
+        <div class="card-grid">
+          {entries.map((entry) => <ProjectCard entry={entry} />)}
+        </div>
+      ) : (
+        <p class="empty-state">作品案例正在補齊可查證資料，目前沒有公開內容。</p>
+      )
+    }
+  </section>
+</BaseLayout>

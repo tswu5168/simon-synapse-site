@@ -1,0 +1,92 @@
+---
+import type { CollectionEntry } from "astro:content";
+import ExternalLink from "./ExternalLink.astro";
+
+interface Props {
+  entry: CollectionEntry<"projects">;
+}
+
+const { entry } = Astro.props;
+const slug = entry.id.replace(/\.(md|mdx)$/, "");
+---
+
+<article class="content-card">
+  <div class="card-meta">
+    <span>{entry.data.category}</span>
+    <span class="status">狀態：{entry.data.status}</span>
+  </div>
+  <h3>{entry.data.title}</h3>
+  <p>{entry.data.description}</p>
+  <ul class="tag-list" aria-label="作品標籤">
+    {entry.data.tags.map((tag) => <li>{tag}</li>)}
+  </ul>
+  <div class="card-actions">
+    <a href={`/projects/${slug}`}>閱讀案例：{entry.data.title}</a>
+    <ExternalLink href={entry.data.projectUrl}>開啟作品：{entry.data.title}</ExternalLink>
+  </div>
+</article>
+
+<style>
+  .content-card {
+    display: flex;
+    min-width: 0;
+    min-height: 100%;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.25rem, 3vw, 1.8rem);
+    background:
+      linear-gradient(145deg, rgb(155 123 255 / 8%), transparent 42%),
+      var(--surface-glass);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    color: var(--cyan-strong);
+    font-size: 0.82em;
+  }
+
+  .status {
+    color: #e3d9ff;
+  }
+
+  h3 {
+    margin-block-start: 1rem;
+    font-size: calc(1.4rem * var(--font-scale));
+  }
+
+  p {
+    flex: 1;
+    color: var(--text-muted);
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tag-list li {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.15rem 0.65rem;
+    color: var(--text-muted);
+    font-size: 0.78em;
+  }
+
+  .card-actions {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .card-actions a {
+    min-height: 3rem;
+    font-weight: 700;
+  }
+</style>

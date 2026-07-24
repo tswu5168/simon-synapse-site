@@ -1,7 +1,25 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import HeroSignal from "../components/HeroSignal.astro";
+import InsightCard from "../components/InsightCard.astro";
+import ProjectCard from "../components/ProjectCard.astro";
 import { SITE } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { selectVisibleEntries, sortNewestFirst } from "../lib/content";
 import { profileJsonLd } from "../lib/seo";
+
+const showDrafts = import.meta.env.PUBLIC_SHOW_DRAFTS === "true";
+const insights = sortNewestFirst(
+  selectVisibleEntries(await getCollection("insights"), { showDrafts }),
+);
+const projects = sortNewestFirst(
+  selectVisibleEntries(await getCollection("projects"), { showDrafts }),
+);
+const featuredInsights = insights.filter((entry) => entry.data.featured).slice(0, 2);
+const latestInsights = insights
+  .filter((entry) => !featuredInsights.some((featured) => featured.id === entry.id))
+  .slice(0, 3);
+const featuredProjects = projects.slice(0, 3);
 ---
 
 <BaseLayout
@@ -10,189 +28,123 @@ import { profileJsonLd } from "../lib/seo";
   canonicalPath="/"
   jsonLd={profileJsonLd()}
 >
-  <section class="hero container" aria-labelledby="hero-title">
-    <div class="signal-orbit" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
+  <HeroSignal />
+
+  <section class="content-section container" aria-labelledby="featured-heading">
+    <div class="section-heading">
+      <h2 id="featured-heading">焦點觀點</h2>
+      <a href="/insights">瀏覽全部文章</a>
     </div>
-    <div class="hero-copy">
-      <p class="eyebrow">Human ideas × AI systems × digital assets</p>
-      <h1 id="hero-title">{SITE.name}</h1>
-      <p class="tagline">{SITE.tagline}</p>
-      <p class="description">
-        這裡彙整賽腦耶的原創觀點、實作紀錄與可持續改進的 AI 作品。
+    {
+      featuredInsights.length > 0 ? (
+        <div class="card-grid">
+          {featuredInsights.map((entry) => <InsightCard entry={entry} />)}
+        </div>
+      ) : (
+        <p class="empty-state">焦點文章正在進行人工編輯審查，通過後會在這裡發布。</p>
+      )
+    }
+  </section>
+
+  <section class="content-section container" aria-labelledby="latest-heading">
+    <div class="section-heading">
+      <h2 id="latest-heading">最新訊號</h2>
+    </div>
+    {
+      latestInsights.length > 0 ? (
+        <div class="card-grid">
+          {latestInsights.map((entry) => <InsightCard entry={entry} />)}
+        </div>
+      ) : (
+        <p class="empty-state">最新文章尚在整理證據與來源，本站不以空泛內容填補版面。</p>
+      )
+    }
+  </section>
+
+  <section class="content-section container" aria-labelledby="projects-heading">
+    <div class="section-heading">
+      <h2 id="projects-heading">作品實證</h2>
+      <a href="/projects">瀏覽全部作品</a>
+    </div>
+    {
+      featuredProjects.length > 0 ? (
+        <div class="card-grid">
+          {featuredProjects.map((entry) => <ProjectCard entry={entry} />)}
+        </div>
+      ) : (
+        <p class="empty-state">作品案例正在補齊方法、限制與可查證來源後再公開。</p>
+      )
+    }
+  </section>
+
+  <section class="content-section container split-panel" aria-labelledby="author-heading">
+    <div>
+      <p class="eyebrow">Human review required</p>
+      <h2 id="author-heading">關於賽腦耶</h2>
+    </div>
+    <div>
+      <p>
+        賽腦耶以個人觀點提出問題，運用 AI 協助研究與實作，最後由本人查核、修訂與決定是否發布。
       </p>
-      <div class="actions" aria-label="內容入口">
-        <a class="button primary" href="/insights">探索文章</a>
-        <a class="button" href="/projects">查看作品</a>
-      </div>
+      <a class="button" href="/about">了解創作方法</a>
     </div>
   </section>
 
-  <section class="principle container" aria-labelledby="principle-title">
-    <p class="eyebrow">Editorial signal</p>
-    <h2 id="principle-title">真實發想，透明實作，持續累積</h2>
-    <p>{SITE.disclaimer}</p>
+  <section class="content-section container" aria-labelledby="topics-heading">
+    <div class="section-heading">
+      <h2 id="topics-heading">探索主題</h2>
+    </div>
+    <nav class="topic-links" aria-label="主題入口">
+      <a href="/insights">AI 工具</a>
+      <a href="/insights">資料研究</a>
+      <a href="/insights">實作教學</a>
+      <a href="/insights">數位資產</a>
+      <a href="/projects">作品紀錄</a>
+    </nav>
+    <p class="site-disclaimer">{SITE.disclaimer}</p>
   </section>
 </BaseLayout>
 
 <style>
-  .hero {
-    position: relative;
+  .split-panel {
     display: grid;
-    align-items: center;
-    min-height: min(50rem, calc(100dvh - var(--header-height)));
-    padding-block: clamp(4rem, 11vw, 9rem);
-    isolation: isolate;
+    gap: 1.5rem;
+    border-block: 1px solid var(--border);
   }
 
-  .hero::before {
-    position: absolute;
-    z-index: -1;
-    inset: 9% 0 8% 22%;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 35% 35%, rgb(88 230 255 / 24%), transparent 25%),
-      radial-gradient(circle at 65% 45%, rgb(155 123 255 / 22%), transparent 34%),
-      radial-gradient(circle at 50% 70%, rgb(255 95 210 / 16%), transparent 30%);
-    filter: blur(2.8rem);
-    content: "";
-  }
-
-  .hero-copy {
-    max-width: 58rem;
-  }
-
-  h1 {
-    margin-block-end: 0.15em;
-    color: transparent;
-    background: linear-gradient(105deg, #f4f7ff 8%, #58e6ff 45%, #b99fff 72%, #ff9ce4);
-    background-clip: text;
-    -webkit-background-clip: text;
-    filter: drop-shadow(0 0 1.5rem rgb(88 230 255 / 18%));
-  }
-
-  .tagline {
-    margin-block-end: 1rem;
-    color: var(--text);
-    font-size: clamp(
-      calc(1.5rem * var(--font-scale)),
-      calc(3.5vw * var(--font-scale)),
-      calc(2.5rem * var(--font-scale))
-    );
-    font-weight: 750;
-    line-height: 1.45;
-  }
-
-  .description {
-    max-width: 42rem;
+  .split-panel p {
     color: var(--text-muted);
   }
 
-  .actions {
+  .topic-links {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-block-start: 2rem;
   }
 
-  .primary {
-    border-color: var(--cyan);
-    color: #031017;
-    background: linear-gradient(105deg, var(--cyan), #8ca4ff);
-    font-weight: 800;
-  }
-
-  .primary:hover {
-    color: #031017;
-    background: linear-gradient(105deg, #9ef2ff, #b7c2ff);
-  }
-
-  .signal-orbit {
-    position: absolute;
-    z-index: -1;
-    top: 12%;
-    right: 2%;
-    width: min(42vw, 24rem);
-    aspect-ratio: 1;
-    border: 1px solid rgb(88 230 255 / 22%);
-    border-radius: 50%;
-    box-shadow:
-      inset 0 0 3rem rgb(88 230 255 / 7%),
-      0 0 3rem rgb(155 123 255 / 9%);
-  }
-
-  .signal-orbit::before,
-  .signal-orbit::after {
-    position: absolute;
-    inset: 18%;
-    border: 1px solid rgb(155 123 255 / 30%);
-    border-radius: 50%;
-    content: "";
-    transform: rotate(42deg) scaleY(0.45);
-  }
-
-  .signal-orbit::after {
-    inset: 28%;
-    border-color: rgb(255 95 210 / 34%);
-    transform: rotate(-24deg) scaleX(0.55);
-  }
-
-  .signal-orbit span {
-    position: absolute;
-    width: 0.7rem;
-    height: 0.7rem;
-    border-radius: 50%;
-    background: var(--cyan);
-    box-shadow: 0 0 1rem var(--cyan);
-  }
-
-  .signal-orbit span:nth-child(1) {
-    top: 18%;
-    left: 16%;
-  }
-
-  .signal-orbit span:nth-child(2) {
-    top: 46%;
-    right: 4%;
-    background: var(--violet);
-    box-shadow: 0 0 1rem var(--violet);
-  }
-
-  .signal-orbit span:nth-child(3) {
-    right: 30%;
-    bottom: 6%;
-    background: var(--magenta);
-    box-shadow: 0 0 1rem var(--magenta);
-  }
-
-  .principle {
-    margin-block: 1rem 5rem;
+  .topic-links a {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: clamp(1.5rem, 4vw, 3rem);
-    background:
-      linear-gradient(125deg, rgb(88 230 255 / 7%), transparent 40%),
-      var(--surface-glass);
-    box-shadow: var(--shadow-glow);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    color: var(--text);
+    background: var(--surface-glass);
+    text-decoration: none;
   }
 
-  .principle h2 {
-    max-width: 42rem;
-  }
-
-  .principle p:last-child {
+  .site-disclaimer {
     max-width: var(--reading-width);
+    margin-block-start: 2rem;
     color: var(--text-muted);
+    font-size: 0.9em;
   }
 
-  @media (max-width: 47.99rem) {
-    .signal-orbit {
-      top: 6%;
-      right: 0;
-      width: 17rem;
-      opacity: 0.58;
+  @media (min-width: 56rem) {
+    .split-panel {
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 3rem;
     }
   }
 </style>

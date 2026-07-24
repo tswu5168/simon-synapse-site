@@ -1,0 +1,37 @@
+---
+import { getCollection } from "astro:content";
+import InsightCard from "../../components/InsightCard.astro";
+import { SITE } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { selectVisibleEntries, sortNewestFirst } from "../../lib/content";
+
+const entries = sortNewestFirst(
+  selectVisibleEntries(await getCollection("insights"), {
+    showDrafts: import.meta.env.PUBLIC_SHOW_DRAFTS === "true",
+  }),
+);
+---
+
+<BaseLayout
+  title="觀點與教學"
+  description="賽腦耶針對 AI 工具、資料研究、實作方法與數位資產所整理的原創觀點與教學。"
+  canonicalPath="/insights"
+>
+  <header class="page-hero container">
+    <p class="eyebrow">{SITE.name} Signal Journal</p>
+    <h1>觀點與教學</h1>
+    <p>共 {entries.length} 篇已發布內容。每篇文章都會標示作者、更新日期、AI 協作與參考來源。</p>
+  </header>
+
+  <section class="content-section container" aria-label="文章列表">
+    {
+      entries.length > 0 ? (
+        <div class="card-grid">
+          {entries.map((entry) => <InsightCard entry={entry} />)}
+        </div>
+      ) : (
+        <p class="empty-state">文章正在進行人工審查，目前沒有公開內容。</p>
+      )
+    }
+  </section>
+</BaseLayout>

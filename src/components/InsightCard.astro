@@ -1,0 +1,87 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entry: CollectionEntry<"insights">;
+}
+
+const { entry } = Astro.props;
+const slug = entry.id.replace(/\.(md|mdx)$/, "");
+const publishedLabel = new Intl.DateTimeFormat("zh-TW", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+}).format(entry.data.publishedAt);
+---
+
+<article class="content-card">
+  <div class="card-meta">
+    <span>{entry.data.category}</span>
+    <time datetime={entry.data.publishedAt.toISOString()}>{publishedLabel}</time>
+  </div>
+  <h3>{entry.data.title}</h3>
+  <p>{entry.data.description}</p>
+  <ul class="tag-list" aria-label="文章標籤">
+    {entry.data.tags.map((tag) => <li>{tag}</li>)}
+  </ul>
+  <a class="card-link" href={`/insights/${slug}`}>閱讀：{entry.data.title}</a>
+</article>
+
+<style>
+  .content-card {
+    display: flex;
+    min-width: 0;
+    min-height: 100%;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.25rem, 3vw, 1.8rem);
+    background:
+      linear-gradient(145deg, rgb(88 230 255 / 7%), transparent 42%),
+      var(--surface-glass);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    color: var(--cyan-strong);
+    font-size: 0.82em;
+  }
+
+  h3 {
+    margin-block-start: 1rem;
+    font-size: calc(1.4rem * var(--font-scale));
+  }
+
+  p {
+    flex: 1;
+    color: var(--text-muted);
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tag-list li {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.15rem 0.65rem;
+    color: var(--text-muted);
+    font-size: 0.78em;
+  }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    align-self: flex-start;
+    font-weight: 700;
+  }
+</style>
