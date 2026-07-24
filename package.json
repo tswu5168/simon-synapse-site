@@ -1,0 +1,43 @@
+{
+  "name": "simon-synapse-hub",
+  "version": "1.0.0",
+  "description": "Simon Synapse 個人內容入口網站",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "check": "astro check && vitest run",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
+    "generate:redirects": "node scripts/build-redirects.mjs",
+    "generate:og": "node scripts/generate-og-image.mjs",
+    "audit:legacy": "node scripts/audit-legacy-routes.mjs",
+    "build": "npm run generate:redirects && astro check && astro build && node scripts/verify-build.mjs",
+    "preview": "astro preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.9.9",
+    "@astrojs/rss": "4.0.19",
+    "@astrojs/sitemap": "3.7.3",
+    "astro": "7.1.0",
+    "sharp": "0.35.3",
+    "typescript": "6.0.3",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.61.1",
+    "linkedom": "0.18.13",
+    "vitest": "4.1.10"
+  }
+}
