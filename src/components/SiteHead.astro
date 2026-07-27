@@ -65,12 +65,3 @@ const socialImage = new URL(image, SITE.origin).toString();
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   )
 }
-
-<script is:inline>
-  try {
-    document.documentElement.dataset.fontScale =
-      localStorage.getItem("simon-font-scale") === "large" ? "large" : "standard";
-  } catch {
-    document.documentElement.dataset.fontScale = "standard";
-  }
-</script>

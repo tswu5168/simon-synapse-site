@@ -1,7 +1,7 @@
 export const SITE = {
   origin: "https://simonsynapse.net",
   name: "Simon Synapse",
-  tagline: "用 AI 實現財富自由",
+  tagline: "創意遇見 AI，未來由此展開",
   author: "賽腦耶",
   description:
     "透過實用 AI 工具、資料研究與持續創作，建立可累積的數位資產。",

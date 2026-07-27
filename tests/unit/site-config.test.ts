@@ -4,7 +4,7 @@ import { ADS, SITE, isAdEligible } from "../../src/config/site";
 describe("site configuration", () => {
   it("locks approved brand copy", () => {
     expect(SITE.name).toBe("Simon Synapse");
-    expect(SITE.tagline).toBe("用 AI 實現財富自由");
+    expect(SITE.tagline).toBe("創意遇見 AI，未來由此展開");
     expect(SITE.author).toBe("賽腦耶");
   });
 

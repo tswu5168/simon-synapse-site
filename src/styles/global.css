@@ -26,10 +26,6 @@
   color: var(--text);
 }
 
-:root[data-font-scale="large"] {
-  --font-scale: 1.25;
-}
-
 * {
   box-sizing: border-box;
 }

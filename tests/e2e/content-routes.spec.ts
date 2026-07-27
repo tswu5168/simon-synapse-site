@@ -4,13 +4,24 @@ test("home uses the approved reading order", async ({ page }) => {
   await page.goto("/");
   const headings = await page.locator("main h1, main h2").allTextContents();
   expect(headings).toEqual([
-    "用 AI 實現財富自由",
+    "創意遇見 AI，未來由此展開",
     "焦點觀點",
     "最新訊號",
     "作品實證",
     "關於賽腦耶",
     "探索主題",
   ]);
+});
+
+test("header omits the removed font-size switch", async ({ page }) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: /切換為(?:大字|標準字)/ }),
+  ).toHaveCount(0);
+  await expect(page.locator("html")).not.toHaveAttribute(
+    "data-font-scale",
+    /.+/,
+  );
 });
 
 test("home displays the four approved core projects in order", async ({
