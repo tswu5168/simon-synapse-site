@@ -13,6 +13,45 @@ test("home uses the approved reading order", async ({ page }) => {
   ]);
 });
 
+test("home displays the four approved core projects in order", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const section = page.locator('section[aria-labelledby="projects-heading"]');
+  await expect(section.locator(".content-card")).toHaveCount(4);
+  await expect(section.locator("h3")).toHaveText([
+    "小賽 AI 樂透預測：把預測變成可驗證研究",
+    "Matt Pocock Skills 繁體中文互動速查手冊",
+    "2026 世界盃 AI 預測：模型、賠率與結果追蹤",
+    "小賽影片壓縮器：瀏覽器本機轉碼的實作與限制",
+  ]);
+
+  await expect(
+    section.getByRole("link", {
+      name: "開啟作品：小賽 AI 樂透預測：把預測變成可驗證研究 （另開新視窗）",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "https://lotto.simonsynapse.net/");
+  await expect(
+    section.getByRole("link", {
+      name: "開啟作品：Matt Pocock Skills 繁體中文互動速查手冊 （另開新視窗）",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "https://mps.simonsynapse.net/");
+  await expect(
+    section.getByRole("link", {
+      name: "開啟作品：2026 世界盃 AI 預測：模型、賠率與結果追蹤 （另開新視窗）",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "https://sfiimfoan.simonsynapse.net/");
+  await expect(
+    section.getByRole("link", {
+      name: "開啟作品：小賽影片壓縮器：瀏覽器本機轉碼的實作與限制 （另開新視窗）",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "https://ssacompressor.simonsynapse.net/");
+});
+
 test("content index routes are available", async ({ page }) => {
   await page.goto("/insights");
   await expect(

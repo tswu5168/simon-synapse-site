@@ -5,8 +5,19 @@ import InsightCard from "../components/InsightCard.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import { SITE } from "../config/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { selectVisibleEntries, sortNewestFirst } from "../lib/content";
+import {
+  selectEntriesInOrder,
+  selectVisibleEntries,
+  sortNewestFirst,
+} from "../lib/content";
 import { profileJsonLd } from "../lib/seo";
+
+const CORE_PROJECT_IDS = [
+  "xiaosai-ai-lottery",
+  "matt-pocock-skills-guide",
+  "fifa-ai-prediction",
+  "ssa-compressor",
+] as const;
 
 const showDrafts = import.meta.env.PUBLIC_SHOW_DRAFTS === "true";
 const insights = sortNewestFirst(
@@ -19,7 +30,7 @@ const featuredInsights = insights.filter((entry) => entry.data.featured).slice(0
 const latestInsights = insights
   .filter((entry) => !featuredInsights.some((featured) => featured.id === entry.id))
   .slice(0, 3);
-const featuredProjects = projects.slice(0, 3);
+const coreProjects = selectEntriesInOrder(projects, CORE_PROJECT_IDS);
 ---
 
 <BaseLayout
@@ -67,9 +78,9 @@ const featuredProjects = projects.slice(0, 3);
       <a href="/projects">瀏覽全部作品</a>
     </div>
     {
-      featuredProjects.length > 0 ? (
+      coreProjects.length > 0 ? (
         <div class="card-grid">
-          {featuredProjects.map((entry) => <ProjectCard entry={entry} />)}
+          {coreProjects.map((entry) => <ProjectCard entry={entry} />)}
         </div>
       ) : (
         <p class="empty-state">作品案例正在補齊方法、限制與可查證來源後再公開。</p>

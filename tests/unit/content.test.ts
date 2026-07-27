@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { selectVisibleEntries, sortNewestFirst } from "../../src/lib/content";
+import {
+  selectEntriesInOrder,
+  selectVisibleEntries,
+  sortNewestFirst,
+} from "../../src/lib/content";
 
 const entries = [
   { id: "older", data: { draft: false, publishedAt: new Date("2026-07-20") } },
@@ -33,5 +37,21 @@ describe("content visibility", () => {
       "older",
     ]);
     expect(entries[0].id).toBe("older");
+  });
+});
+
+describe("ordered content selection", () => {
+  it("returns entries in the explicitly approved order", () => {
+    expect(
+      selectEntriesInOrder(entries, ["newer", "older"]).map(
+        (entry) => entry.id,
+      ),
+    ).toEqual(["newer", "older"]);
+  });
+
+  it("throws when an approved entry is missing", () => {
+    expect(() => selectEntriesInOrder(entries, ["missing"])).toThrow(
+      "Missing content entry: missing",
+    );
   });
 });
