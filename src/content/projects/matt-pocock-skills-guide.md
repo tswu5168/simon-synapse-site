@@ -12,7 +12,7 @@ sources:
   - title: mattpocock skills 原始專案
     url: https://github.com/mattpocock/skills
 aiAssisted: true
-draft: true
+draft: false
 featured: false
 seoTitle: Matt Pocock Skills 中文手冊案例｜Simon Synapse
 seoDescription: 將 37 個 skills 的用途、使用時機與中英文觸發詞分類整理，製作成可搜尋、可篩選的單一 HTML 手冊。

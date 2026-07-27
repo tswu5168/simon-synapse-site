@@ -14,7 +14,7 @@ sources:
   - title: FFmpeg.wasm
     url: https://github.com/ffmpegwasm/ffmpeg.wasm
 aiAssisted: true
-draft: true
+draft: false
 featured: false
 seoTitle: 小賽影片壓縮器作品案例｜Simon Synapse
 seoDescription: 以程式碼與瀏覽器網路測試檢查 FFmpeg.wasm 本機壓縮流程，並揭露目前 Worker 失敗與模擬成功的限制。

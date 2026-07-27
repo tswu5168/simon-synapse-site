@@ -14,7 +14,7 @@ sources:
   - title: FIFA World Cup 2026
     url: https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026
 aiAssisted: true
-draft: true
+draft: false
 featured: false
 seoTitle: 2026 世界盃 AI 預測作品案例｜Simon Synapse
 seoDescription: 世界盃 AI 預測網站如何整合 Elo、進球模型、賠率來源與賽後評分，並誠實處理準確率與投注限制。

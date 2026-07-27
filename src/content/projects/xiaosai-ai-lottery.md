@@ -14,7 +14,7 @@ sources:
   - title: NIST Statistical Test Suite
     url: https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software
 aiAssisted: true
-draft: true
+draft: false
 featured: false
 seoTitle: 小賽 AI 樂透預測作品案例｜Simon Synapse
 seoDescription: 小賽 AI 樂透預測如何以隨機基準、逐期回測與風險揭露，把選號網站轉化為可檢查的資料研究作品。
