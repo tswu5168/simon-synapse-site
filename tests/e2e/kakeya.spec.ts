@@ -73,3 +73,32 @@ test("互動科普頁能調整有限取樣並清楚標示模型限制", async ({
     /ready|error/,
   );
 });
+
+test("沉浸藝術頁尊重減少動態設定並可隨時暫停", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/kakeya/immersive");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: "把無數方向收進一道光" }),
+  ).toBeVisible();
+  await expect(page.locator("[data-motion-state]")).toHaveAttribute(
+    "data-motion-state",
+    "靜態模式",
+  );
+  await expect(page.locator("#immersive-toggle")).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.reload();
+  await expect(page.locator("[data-motion-state]")).toHaveAttribute(
+    "data-motion-state",
+    "自動流動",
+  );
+  await page.locator(".kakeya-immersive-stage").dispatchEvent("pointerdown");
+  await expect(page.locator("[data-motion-state]")).toHaveAttribute(
+    "data-motion-state",
+    "已暫停",
+  );
+});
