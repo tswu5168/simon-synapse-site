@@ -102,3 +102,33 @@ test("沉浸藝術頁尊重減少動態設定並可隨時暫停", async ({ page 
     "已暫停",
   );
 });
+
+test("數學教學頁以六步驟說明三維掛谷定理", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/kakeya/learn");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: "從一根針，到完整三維" }),
+  ).toBeVisible();
+  await expect(page.locator("[data-learn-step]")).toHaveCount(6);
+  await expect(page.locator("#learn-progress")).toHaveText("步驟 1／6");
+
+  await page.getByRole("button", { name: "下一步" }).click();
+  await expect(page.locator("#learn-progress")).toHaveText("步驟 2／6");
+  await expect(page.locator('[data-learn-step="2"]')).toBeVisible();
+  await expect(page.locator('[data-learn-step="1"]')).toBeHidden();
+
+  for (let index = 0; index < 4; index += 1) {
+    await page.getByRole("button", { name: "下一步" }).click();
+  }
+  await expect(page.locator("#learn-progress")).toHaveText("步驟 6／6");
+  await expect(page.getByTestId("dimension-result")).toContainText(
+    "每一個三維掛谷集合的 Minkowski 維度與 Hausdorff 維度都是 3",
+  );
+  await expect(
+    page.getByRole("link", { name: "Wang–Zahl 原始論文" }),
+  ).toHaveAttribute("href", "https://arxiv.org/abs/2502.17655");
+  await expect(page.getByTestId("learn-model-note")).toContainText(
+    "有限取樣只用來輔助理解",
+  );
+});
