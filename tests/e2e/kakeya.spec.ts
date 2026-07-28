@@ -132,3 +132,44 @@ test("數學教學頁以六步驟說明三維掛谷定理", async ({ page }) => 
     "有限取樣只用來輔助理解",
   );
 });
+
+test("三個掛谷頁面都有獨立 SEO 資訊且不載入廣告", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const mode of modes) {
+    await page.goto(mode.path);
+    await expect(page).toHaveTitle(/掛谷猜想 3D/);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      /三維|3D/,
+    );
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      `https://simonsynapse.net${mode.path}`,
+    );
+    await expect(page.locator("main h1")).toHaveCount(1);
+    await expect(page.locator(".adsbygoogle")).toHaveCount(0);
+    await expect(
+      page.locator('script[src*="pagead2.googlesyndication.com"]'),
+    ).toHaveCount(0);
+  }
+});
+
+test("WebGL 環境中斷時顯示結構化備援資訊", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/kakeya/interactive");
+
+  const host = page.locator('[data-kakeya-host][data-mode="interactive"]');
+  if ((await host.getAttribute("data-state")) !== "error") {
+    await host.locator("canvas").dispatchEvent("webglcontextlost", {
+      cancelable: true,
+    });
+  }
+
+  await expect(host).toHaveAttribute("data-state", "error");
+  await expect(host.locator("canvas")).toBeHidden();
+  const fallback = host.locator("[data-kakeya-error]");
+  await expect(fallback).toBeVisible();
+  await expect(fallback).toContainText("Status：");
+  await expect(fallback).toContainText("Root Cause：");
+  await expect(fallback).toContainText("Suggested Fix：");
+});

@@ -153,6 +153,14 @@
   pointer-events: none;
 }
 
+.kakeya-scene[data-state="error"] canvas {
+  visibility: hidden;
+}
+
+.kakeya-scene[data-state="error"] .kakeya-static {
+  opacity: 1;
+}
+
 .kakeya-loading,
 .kakeya-error,
 .kakeya-noscript {

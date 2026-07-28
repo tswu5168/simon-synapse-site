@@ -5,6 +5,9 @@ const auditedRoutes = [
   "/",
   "/insights/why-simon-synapse",
   "/projects/xiaosai-ai-lottery",
+  "/kakeya/interactive",
+  "/kakeya/immersive",
+  "/kakeya/learn",
   "/about",
   "/privacy",
   "/404",
@@ -62,6 +65,9 @@ for (const route of auditedRoutes) {
   test(`${route} has no serious or critical axe violations`, async ({
     page,
   }) => {
+    if (route.startsWith("/kakeya/")) {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+    }
     await page.goto(route);
     const results = await new AxeBuilder({ page }).analyze();
     const blockingViolations = results.violations.filter(
@@ -75,6 +81,9 @@ for (const route of auditedRoutes) {
   test(`${route} reflows at three viewport widths and 200 percent zoom`, async ({
     page,
   }) => {
+    if (route.startsWith("/kakeya/")) {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+    }
     for (const width of [360, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(route);

@@ -12,5 +12,11 @@ export default defineConfig({
   devToolbar: {
     enabled: false,
   },
+  vite: {
+    build: {
+      // Three.js 場景約 552 kB minified、138 kB gzip；保留 600 kB 回歸上限。
+      chunkSizeWarningLimit: 600,
+    },
+  },
   trailingSlash: "never",
 });

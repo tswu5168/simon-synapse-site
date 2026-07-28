@@ -95,17 +95,18 @@ test("project detail exposes status and the separately labeled live work", async
   ).toHaveAttribute("href", "https://lotto.simonsynapse.net/");
 });
 
-test("preview exposes all five verified project drafts", async ({ page }) => {
+test("preview exposes all six verified project drafts", async ({ page }) => {
   const projectSlugs = [
     "xiaosai-ai-lottery",
     "fifa-ai-prediction",
     "ssa-compressor",
     "exam-roadmap",
     "matt-pocock-skills-guide",
+    "kakeya-3d-lab",
   ];
 
   await page.goto("/projects");
-  await expect(page.locator(".content-card")).toHaveCount(5);
+  await expect(page.locator(".content-card")).toHaveCount(6);
 
   for (const slug of projectSlugs) {
     await page.goto(`/projects/${slug}`);

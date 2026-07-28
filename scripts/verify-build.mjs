@@ -9,11 +9,18 @@ const REQUIRED_OUTPUTS = [
   "sitemap-index.xml",
   "rss.xml",
   "ads.txt",
+  "kakeya/interactive/index.html",
+  "kakeya/immersive/index.html",
+  "kakeya/learn/index.html",
+  "projects/kakeya-3d-lab/index.html",
 ];
 const ROUTES_WITHOUT_ADS = new Set([
   "/",
   "/insights",
   "/projects",
+  "/kakeya/interactive",
+  "/kakeya/immersive",
+  "/kakeya/learn",
   "/about",
   "/contact",
   "/privacy",
