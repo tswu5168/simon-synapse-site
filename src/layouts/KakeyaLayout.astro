@@ -1,0 +1,19 @@
+---
+import KakeyaModeNav from "../components/kakeya/KakeyaModeNav.astro";
+import BaseLayout from "./BaseLayout.astro";
+import "../styles/kakeya.css";
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  activeMode: "interactive" | "immersive" | "learn";
+}
+
+const { activeMode, ...page } = Astro.props;
+---
+
+<BaseLayout {...page} loadAds={false}>
+  <KakeyaModeNav activeMode={activeMode} />
+  <slot />
+</BaseLayout>

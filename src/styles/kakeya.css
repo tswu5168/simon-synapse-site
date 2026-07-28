@@ -1,0 +1,273 @@
+:root {
+  --kakeya-panel: rgb(8 13 31 / 88%);
+  --kakeya-panel-strong: rgb(13 21 48 / 96%);
+  --kakeya-line: rgb(128 213 255 / 34%);
+}
+
+.kakeya-mode-nav {
+  position: sticky;
+  z-index: 15;
+  top: 0;
+  border-bottom: 1px solid var(--border);
+  background: rgb(5 8 22 / 88%);
+  backdrop-filter: blur(1rem);
+}
+
+.kakeya-mode-nav__inner,
+.kakeya-mode-nav__links {
+  display: flex;
+  align-items: center;
+}
+
+.kakeya-mode-nav__inner {
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4rem;
+}
+
+.kakeya-mode-nav__label {
+  flex: 0 0 auto;
+  color: var(--cyan-strong);
+  font-size: 0.78em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.kakeya-mode-nav__links {
+  gap: 0.35rem;
+}
+
+.kakeya-mode-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.kakeya-mode-nav a:hover {
+  border-color: var(--border);
+  color: var(--text);
+  background: rgb(88 230 255 / 7%);
+}
+
+.kakeya-mode-nav a[aria-current="page"] {
+  border-color: var(--border-strong);
+  color: var(--text);
+  background: linear-gradient(135deg, rgb(88 230 255 / 15%), rgb(155 123 255 / 17%));
+  box-shadow: inset 0 0 1.25rem rgb(88 230 255 / 7%);
+}
+
+.kakeya-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.kakeya-hero {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding-block: clamp(2.5rem, 7vw, 6rem);
+}
+
+.kakeya-hero__copy {
+  align-self: center;
+}
+
+.kakeya-hero__copy p {
+  max-width: 43rem;
+  color: var(--text-muted);
+}
+
+.kakeya-kicker {
+  margin-block-end: 0.75rem;
+  color: var(--cyan-strong);
+  font-size: 0.78em;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.kakeya-stage {
+  position: relative;
+  min-height: clamp(24rem, 62vw, 43rem);
+  overflow: hidden;
+  border: 1px solid var(--kakeya-line);
+  border-radius: clamp(1rem, 3vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 46%, rgb(88 230 255 / 14%), transparent 35%),
+    linear-gradient(145deg, #070b1c, #03040b 70%);
+  box-shadow: var(--shadow-glow), 0 2rem 5rem rgb(0 0 0 / 32%);
+}
+
+.kakeya-scene,
+.kakeya-scene canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.kakeya-scene {
+  position: absolute;
+  inset: 0;
+}
+
+.kakeya-scene canvas {
+  position: relative;
+  z-index: 2;
+  display: block;
+  min-height: inherit;
+  cursor: grab;
+  touch-action: none;
+}
+
+.kakeya-scene canvas:active {
+  cursor: grabbing;
+}
+
+.kakeya-static {
+  position: absolute;
+  z-index: 1;
+  inset: 50% auto auto 50%;
+  width: min(56%, 22rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 7deg, transparent 0deg 6deg, rgb(88 230 255 / 45%) 7deg 7.7deg, transparent 8deg 13deg),
+    radial-gradient(circle, rgb(155 123 255 / 25%), transparent 62%);
+  filter: drop-shadow(0 0 2rem rgb(88 230 255 / 28%));
+  opacity: 0.88;
+  transform: translate(-50%, -50%) rotate(12deg) scaleY(0.42);
+  transition: opacity 300ms ease-out;
+}
+
+.kakeya-scene[data-state="ready"] .kakeya-static,
+.kakeya-scene[data-state="ready"] .kakeya-loading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kakeya-loading,
+.kakeya-error,
+.kakeya-noscript {
+  position: absolute;
+  z-index: 3;
+  inset: auto 1rem 1rem;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--text-muted);
+  background: rgb(5 8 22 / 88%);
+  backdrop-filter: blur(0.75rem);
+}
+
+.kakeya-error {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text);
+}
+
+.kakeya-error[hidden] {
+  display: none;
+}
+
+.kakeya-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--kakeya-panel);
+  box-shadow: 0 1.25rem 3rem rgb(0 0 0 / 20%);
+  backdrop-filter: blur(1rem);
+}
+
+.kakeya-panel > :last-child {
+  margin-block-end: 0;
+}
+
+.kakeya-control-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.kakeya-control {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.kakeya-control__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.kakeya-control output {
+  color: var(--cyan-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.kakeya-control input[type="range"] {
+  width: 100%;
+  min-height: 2.75rem;
+  accent-color: var(--cyan);
+}
+
+.kakeya-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.kakeya-disclaimer {
+  border-inline-start: 0.2rem solid var(--magenta);
+  padding: 0.8rem 1rem;
+  color: var(--text-muted);
+  background: rgb(255 95 210 / 7%);
+}
+
+@media (max-width: 43.99rem) {
+  .kakeya-mode-nav__inner {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+    padding-block: 0.45rem;
+  }
+
+  .kakeya-mode-nav__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .kakeya-mode-nav__links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .kakeya-mode-nav a {
+    min-width: 0;
+    padding-inline: 0.35rem;
+    font-size: 0.82em;
+  }
+}
+
+@media (min-width: 56rem) {
+  .kakeya-hero {
+    grid-template-columns: minmax(18rem, 0.78fr) minmax(30rem, 1.35fr);
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kakeya-static {
+    transition: none;
+  }
+}
