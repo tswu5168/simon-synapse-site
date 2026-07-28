@@ -17,3 +17,19 @@ export interface SegmentOptions {
   dispersion: number;
   seed: number;
 }
+
+export interface KakeyaSceneConfig {
+  mode: KakeyaMode;
+  count: number;
+  tubeRadius: number;
+  dispersion: number;
+  rotationSpeed: number;
+  seed: number;
+  background: number;
+}
+
+export interface RuntimeState {
+  visible: boolean;
+  paused: boolean;
+  reducedMotion: boolean;
+}
