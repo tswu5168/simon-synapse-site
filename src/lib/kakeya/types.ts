@@ -33,3 +33,12 @@ export interface RuntimeState {
   paused: boolean;
   reducedMotion: boolean;
 }
+
+export interface KakeyaSceneController {
+  update(patch: Partial<KakeyaSceneConfig>): void;
+  setPaused(paused: boolean): void;
+  setVisible(visible: boolean): void;
+  setReducedMotion(reducedMotion: boolean): void;
+  renderOnce(): void;
+  destroy(): void;
+}
