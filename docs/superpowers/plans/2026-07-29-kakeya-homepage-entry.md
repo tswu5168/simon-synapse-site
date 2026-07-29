@@ -33,7 +33,7 @@
 將測試名稱改為 `home displays the five approved core projects in order`，將卡片數量改為 `5`，並在標題陣列末端加入：
 
 ```ts
-"掛谷猜想 3D 實驗室：互動科普、沉浸藝術與數學教學",
+"掛谷猜想 3D 實驗室：互動、沉浸與數學教學",
 ```
 
 再加入以下兩個連結驗證：
@@ -41,13 +41,13 @@
 ```ts
 await expect(
   section.getByRole("link", {
-    name: "閱讀案例：掛谷猜想 3D 實驗室：互動科普、沉浸藝術與數學教學",
+    name: "閱讀案例：掛谷猜想 3D 實驗室：互動、沉浸與數學教學",
     exact: true,
   }),
 ).toHaveAttribute("href", "/projects/kakeya-3d-lab");
 await expect(
   section.getByRole("link", {
-    name: "開啟作品：掛谷猜想 3D 實驗室：互動科普、沉浸藝術與數學教學 （另開新視窗）",
+    name: "開啟作品：掛谷猜想 3D 實驗室：互動、沉浸與數學教學 （另開新視窗）",
     exact: true,
   }),
 ).toHaveAttribute("href", "https://simonsynapse.net/kakeya/interactive");
