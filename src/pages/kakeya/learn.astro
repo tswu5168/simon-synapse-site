@@ -1,0 +1,333 @@
+---
+import KakeyaScene from "../../components/kakeya/KakeyaScene.astro";
+import KakeyaLayout from "../../layouts/KakeyaLayout.astro";
+---
+
+<KakeyaLayout
+  title="掛谷猜想 3D 數學教學"
+  description="以六個循序步驟拆解掛谷問題，從一根單位線段開始，理解三維掛谷猜想與最新數學結果。"
+  canonicalPath="/kakeya/learn"
+  activeMode="learn"
+>
+  <article class="kakeya-page">
+    <header class="container kakeya-learn__intro">
+      <p class="kakeya-kicker">Math Learning</p>
+      <h1>從一根針，到完整三維</h1>
+      <p>
+        用 6 個步驟建立掛谷問題的核心概念。每一步只改變一件事，右側的同一個 3D 模型會同步更新，讓定義、直覺與定理彼此對照。
+      </p>
+    </header>
+
+    <section class="container kakeya-learn" aria-label="掛谷猜想六步驟教學">
+      <div class="kakeya-learn__lesson kakeya-panel">
+        <div class="kakeya-learn__progress-row">
+          <span id="learn-progress" aria-live="polite">步驟 1／6</span>
+          <span id="learn-topic">單位線段</span>
+        </div>
+
+        <div class="kakeya-learn__steps">
+          <section data-learn-step="1" aria-labelledby="learn-step-1-title">
+            <p class="kakeya-kicker">Start with one</p>
+            <h2 id="learn-step-1-title">先放進一根長度為 1 的線段</h2>
+            <p>
+              把它想成一根理想化的針：只有長度與方向，不必先指定粗細。掛谷問題關心的不是針本身，而是哪些集合能容納這樣的線段。
+            </p>
+            <p class="kakeya-key-idea"><strong>關鍵：</strong>「單位」描述線段長度，不是方向數量。</p>
+          </section>
+
+          <section data-learn-step="2" aria-labelledby="learn-step-2-title" hidden>
+            <p class="kakeya-kicker">Every direction</p>
+            <h2 id="learn-step-2-title">不只一根，而是每一個方向</h2>
+            <p>
+              三維空間中的方向形成連續集合。真正的掛谷集合必須對每一個方向，都包含至少一根長度為 1 的線段；畫面只能抽取其中有限個方向示意。
+            </p>
+            <p class="kakeya-key-idea"><strong>關鍵：</strong>方向是連續的，並非只有水平、垂直或幾個固定角度。</p>
+          </section>
+
+          <section data-learn-step="3" aria-labelledby="learn-step-3-title" hidden>
+            <p class="kakeya-kicker">Overlap</p>
+            <h2 id="learn-step-3-title">線段可以彼此穿越與重疊</h2>
+            <p>
+              線段不需要分開排列。把中心聚得更近，許多方向可以共享同一片空間；這種高度重疊正是掛谷集合可能非常「薄」的來源。
+            </p>
+            <p class="kakeya-key-idea"><strong>關鍵：</strong>容納所有方向，不代表要把各方向分配到不同區域。</p>
+          </section>
+
+          <section data-learn-step="4" aria-labelledby="learn-step-4-title" hidden>
+            <p class="kakeya-kicker">Visible approximation</p>
+            <h2 id="learn-step-4-title">用細管看見理想線段</h2>
+            <p>
+              沒有粗細的線段在螢幕上難以觀察，因此模型以半徑很小的細管近似。數學研究常觀察集合周圍厚度為 δ 的鄰域，分析 δ 趨近 0 時體積如何縮小。
+            </p>
+            <p class="kakeya-key-idea"><strong>關鍵：</strong>畫面粗細是觀察工具，不是掛谷集合定義的一部分。</p>
+          </section>
+
+          <section data-learn-step="5" aria-labelledby="learn-step-5-title" hidden>
+            <p class="kakeya-kicker">Volume and dimension</p>
+            <h2 id="learn-step-5-title">零體積，仍可能具有完整維度</h2>
+            <p>
+              集合的體積與維度不是同一件事。掛谷問題要釐清：即使集合的 Lebesgue 測度可以是 0，容納所有方向的條件是否仍迫使它保有完整的空間維度。
+            </p>
+            <p class="kakeya-key-idea"><strong>關鍵：</strong>「測度為 0」不等於「維度小於 3」。</p>
+          </section>
+
+          <section data-learn-step="6" aria-labelledby="learn-step-6-title" hidden>
+            <p class="kakeya-kicker">The 3D result</p>
+            <h2 id="learn-step-6-title">三維掛谷猜想的結果</h2>
+            <p data-testid="dimension-result">
+              Wang 與 Zahl 的 2025 年預印本證明：每一個三維掛谷集合的 Minkowski 維度與 Hausdorff 維度都是 3。
+            </p>
+            <p>
+              這個結論談的是集合的維度，而不是說它必須具有正體積。閱讀原始論證與版本資訊，請參考
+              <a
+                href="https://arxiv.org/abs/2502.17655"
+                target="_blank"
+                rel="noreferrer">Wang–Zahl 原始論文</a
+              >。
+            </p>
+          </section>
+        </div>
+
+        <div class="kakeya-learn__actions">
+          <button id="learn-previous" type="button" disabled>上一步</button>
+          <button id="learn-next" type="button">下一步</button>
+        </div>
+        <p class="kakeya-learn__keyboard-hint">也可使用鍵盤左右方向鍵切換步驟。</p>
+      </div>
+
+      <div class="kakeya-learn__visual">
+        <div class="kakeya-stage">
+          <KakeyaScene label="掛谷猜想六步驟數學模型" mode="learn" />
+          <span class="kakeya-learn__figure-label" id="learn-figure-label">01　單位線段</span>
+        </div>
+        <p class="kakeya-disclaimer" data-testid="learn-model-note">
+          模型限制：有限取樣只用來輔助理解；畫面不能取代無限方向、極限過程與嚴格證明。
+        </p>
+      </div>
+    </section>
+  </article>
+</KakeyaLayout>
+
+<script>
+  import { MODE_PRESETS } from "../../lib/kakeya/presets";
+  import { mountKakeyaScene } from "../../lib/kakeya/scene";
+  import type {
+    KakeyaSceneConfig,
+    KakeyaSceneController,
+  } from "../../lib/kakeya/types";
+
+  const lessons: Array<{
+    topic: string;
+    figure: string;
+    config: Partial<KakeyaSceneConfig>;
+  }> = [
+    {
+      topic: "單位線段",
+      figure: "01　單位線段",
+      config: { count: 8, dispersion: 0.5, tubeRadius: 0.014 },
+    },
+    {
+      topic: "所有方向",
+      figure: "02　方向連續增加",
+      config: { count: 64, dispersion: 0.38, tubeRadius: 0.011 },
+    },
+    {
+      topic: "互相重疊",
+      figure: "03　共享空間",
+      config: { count: 128, dispersion: 0.18, tubeRadius: 0.009 },
+    },
+    {
+      topic: "δ 鄰域",
+      figure: "04　細管近似",
+      config: { count: 192, dispersion: 0.14, tubeRadius: 0.018 },
+    },
+    {
+      topic: "測度與維度",
+      figure: "05　體積不等於維度",
+      config: { count: 256, dispersion: 0.1, tubeRadius: 0.007 },
+    },
+    {
+      topic: "三維定理",
+      figure: "06　完整三維",
+      config: { count: 384, dispersion: 0.07, tubeRadius: 0.005 },
+    },
+  ];
+
+  const host = document.querySelector<HTMLElement>(
+    '[data-kakeya-host][data-mode="learn"]',
+  );
+  const steps = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-learn-step]"),
+  );
+  const progress = document.querySelector<HTMLElement>("#learn-progress");
+  const topic = document.querySelector<HTMLElement>("#learn-topic");
+  const figure = document.querySelector<HTMLElement>("#learn-figure-label");
+  const previous =
+    document.querySelector<HTMLButtonElement>("#learn-previous");
+  const next = document.querySelector<HTMLButtonElement>("#learn-next");
+
+  let scene: KakeyaSceneController | undefined;
+  let activeIndex = 0;
+
+  const showFallback = () => {
+    if (!host) return;
+    host.dataset.state = "error";
+    host.querySelector<HTMLElement>("[data-kakeya-loading]")?.setAttribute(
+      "hidden",
+      "",
+    );
+    host.querySelector<HTMLElement>("[data-kakeya-error]")?.removeAttribute(
+      "hidden",
+    );
+  };
+
+  if (host) {
+    try {
+      scene = mountKakeyaScene(host, {
+        ...MODE_PRESETS.learn,
+        ...lessons[0].config,
+      });
+    } catch {
+      showFallback();
+    }
+  }
+
+  const showStep = (index: number) => {
+    activeIndex = Math.min(lessons.length - 1, Math.max(0, index));
+    steps.forEach((step, stepIndex) => {
+      step.hidden = stepIndex !== activeIndex;
+    });
+
+    const lesson = lessons[activeIndex];
+    if (progress) progress.textContent = `步驟 ${activeIndex + 1}／${lessons.length}`;
+    if (topic) topic.textContent = lesson.topic;
+    if (figure) figure.textContent = lesson.figure;
+    if (previous) previous.disabled = activeIndex === 0;
+    if (next) {
+      next.disabled = activeIndex === lessons.length - 1;
+      next.textContent = activeIndex === lessons.length - 1 ? "已完成" : "下一步";
+    }
+    scene?.update(lesson.config);
+  };
+
+  previous?.addEventListener("click", () => showStep(activeIndex - 1));
+  next?.addEventListener("click", () => showStep(activeIndex + 1));
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") showStep(activeIndex - 1);
+    if (event.key === "ArrowRight") showStep(activeIndex + 1);
+  });
+  window.addEventListener("pagehide", () => scene?.destroy(), { once: true });
+</script>
+
+<style>
+  .kakeya-learn__intro {
+    max-width: var(--content-width);
+    padding-block: clamp(3rem, 8vw, 6rem) 2rem;
+  }
+
+  .kakeya-learn__intro > p:last-child {
+    max-width: var(--reading-width);
+    color: var(--text-muted);
+  }
+
+  .kakeya-learn {
+    display: grid;
+    gap: 1.5rem;
+    padding-block: 1rem clamp(4rem, 10vw, 8rem);
+  }
+
+  .kakeya-learn__lesson {
+    display: flex;
+    flex-direction: column;
+    min-height: 34rem;
+  }
+
+  .kakeya-learn__progress-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-block-end: 0.85rem;
+    color: var(--cyan-strong);
+    font-size: 0.85em;
+    font-weight: 750;
+  }
+
+  .kakeya-learn__steps {
+    flex: 1;
+  }
+
+  .kakeya-learn__steps section[hidden] {
+    display: none;
+  }
+
+  .kakeya-learn__steps h2 {
+    font-size: clamp(1.8rem, 4vw, 2.65rem);
+  }
+
+  .kakeya-key-idea {
+    border-inline-start: 0.2rem solid var(--cyan);
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    background: rgb(88 230 255 / 7%);
+  }
+
+  .kakeya-learn__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-block-start: 1.5rem;
+  }
+
+  .kakeya-learn__actions button:disabled {
+    border-color: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .kakeya-learn__keyboard-hint {
+    margin-block: 0.8rem 0;
+    color: var(--text-muted);
+    font-size: 0.82em;
+    text-align: center;
+  }
+
+  .kakeya-learn__visual {
+    min-width: 0;
+  }
+
+  .kakeya-learn__visual .kakeya-stage {
+    min-height: clamp(28rem, 62vw, 42rem);
+  }
+
+  .kakeya-learn__figure-label {
+    position: absolute;
+    z-index: 4;
+    inset: 1rem auto auto 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    color: var(--cyan-strong);
+    background: rgb(5 8 22 / 78%);
+    font-size: 0.8em;
+    pointer-events: none;
+  }
+
+  .kakeya-learn__visual > .kakeya-disclaimer {
+    margin-block-start: 1rem;
+  }
+
+  @media (min-width: 62rem) {
+    .kakeya-learn {
+      grid-template-columns: minmax(23rem, 0.82fr) minmax(32rem, 1.18fr);
+      align-items: start;
+    }
+
+    .kakeya-learn__visual {
+      position: sticky;
+      top: 5rem;
+    }
+  }
+</style>

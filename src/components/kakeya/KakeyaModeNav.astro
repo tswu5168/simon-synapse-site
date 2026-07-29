@@ -1,0 +1,32 @@
+---
+type KakeyaMode = "interactive" | "immersive" | "learn";
+
+interface Props {
+  activeMode: KakeyaMode;
+}
+
+const { activeMode } = Astro.props;
+const modes = [
+  { id: "interactive", href: "/kakeya/interactive", label: "互動科普" },
+  { id: "immersive", href: "/kakeya/immersive", label: "沉浸藝術" },
+  { id: "learn", href: "/kakeya/learn", label: "數學教學" },
+] as const;
+---
+
+<nav class="kakeya-mode-nav" aria-label="掛谷猜想體驗模式">
+  <div class="container kakeya-mode-nav__inner">
+    <span class="kakeya-mode-nav__label" aria-hidden="true">Kakeya 3D</span>
+    <div class="kakeya-mode-nav__links">
+      {
+        modes.map((mode) => (
+          <a
+            href={mode.href}
+            aria-current={mode.id === activeMode ? "page" : undefined}
+          >
+            {mode.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</nav>

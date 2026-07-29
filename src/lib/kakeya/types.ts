@@ -1,0 +1,44 @@
+export type KakeyaMode = "interactive" | "immersive" | "learn";
+
+export interface Direction3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface SegmentInstance {
+  center: Direction3;
+  direction: Direction3;
+  length: 1;
+}
+
+export interface SegmentOptions {
+  count: number;
+  dispersion: number;
+  seed: number;
+}
+
+export interface KakeyaSceneConfig {
+  mode: KakeyaMode;
+  count: number;
+  tubeRadius: number;
+  dispersion: number;
+  rotationSpeed: number;
+  seed: number;
+  background: number;
+}
+
+export interface RuntimeState {
+  visible: boolean;
+  paused: boolean;
+  reducedMotion: boolean;
+}
+
+export interface KakeyaSceneController {
+  update(patch: Partial<KakeyaSceneConfig>): void;
+  setPaused(paused: boolean): void;
+  setVisible(visible: boolean): void;
+  setReducedMotion(reducedMotion: boolean): void;
+  renderOnce(): void;
+  destroy(): void;
+}

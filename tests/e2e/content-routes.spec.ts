@@ -24,17 +24,18 @@ test("header omits the removed font-size switch", async ({ page }) => {
   );
 });
 
-test("home displays the four approved core projects in order", async ({
+test("home displays the five approved core projects in order", async ({
   page,
 }) => {
   await page.goto("/");
   const section = page.locator('section[aria-labelledby="projects-heading"]');
-  await expect(section.locator(".content-card")).toHaveCount(4);
+  await expect(section.locator(".content-card")).toHaveCount(5);
   await expect(section.locator("h3")).toHaveText([
     "小賽 AI 樂透預測：把預測變成可驗證研究",
     "Matt Pocock Skills 繁體中文互動速查手冊",
     "2026 世界盃 AI 預測：模型、賠率與結果追蹤",
     "小賽影片壓縮器：瀏覽器本機轉碼的實作與限制",
+    "掛谷猜想 3D 實驗室：互動、沉浸與數學教學",
   ]);
 
   await expect(
@@ -61,6 +62,18 @@ test("home displays the four approved core projects in order", async ({
       exact: true,
     }),
   ).toHaveAttribute("href", "https://ssacompressor.simonsynapse.net/");
+  await expect(
+    section.getByRole("link", {
+      name: "閱讀案例：掛谷猜想 3D 實驗室：互動、沉浸與數學教學",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/projects/kakeya-3d-lab");
+  await expect(
+    section.getByRole("link", {
+      name: "開啟作品：掛谷猜想 3D 實驗室：互動、沉浸與數學教學 （另開新視窗）",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "https://simonsynapse.net/kakeya/interactive");
 });
 
 test("content index routes are available", async ({ page }) => {
@@ -95,17 +108,18 @@ test("project detail exposes status and the separately labeled live work", async
   ).toHaveAttribute("href", "https://lotto.simonsynapse.net/");
 });
 
-test("preview exposes all five verified project drafts", async ({ page }) => {
+test("preview exposes all six verified project drafts", async ({ page }) => {
   const projectSlugs = [
     "xiaosai-ai-lottery",
     "fifa-ai-prediction",
     "ssa-compressor",
     "exam-roadmap",
     "matt-pocock-skills-guide",
+    "kakeya-3d-lab",
   ];
 
   await page.goto("/projects");
-  await expect(page.locator(".content-card")).toHaveCount(5);
+  await expect(page.locator(".content-card")).toHaveCount(6);
 
   for (const slug of projectSlugs) {
     await page.goto(`/projects/${slug}`);

@@ -1,0 +1,248 @@
+---
+import KakeyaScene from "../../components/kakeya/KakeyaScene.astro";
+import KakeyaLayout from "../../layouts/KakeyaLayout.astro";
+---
+
+<KakeyaLayout
+  title="掛谷猜想 3D 沉浸藝術"
+  description="以光線、深度與緩慢運動組成的三維沉浸畫面，從藝術視角感受掛谷集合容納所有方向的張力。"
+  canonicalPath="/kakeya/immersive"
+  activeMode="immersive"
+>
+  <article class="kakeya-page kakeya-immersive">
+    <section
+      class="kakeya-immersive-stage"
+      aria-labelledby="immersive-title"
+    >
+      <KakeyaScene label="掛谷猜想沉浸式光線模型" mode="immersive" />
+
+      <div class="kakeya-immersive__veil" aria-hidden="true"></div>
+      <header class="kakeya-immersive__copy">
+        <p class="kakeya-kicker">Immersive Art</p>
+        <h1 id="immersive-title">把無數方向收進一道光</h1>
+        <p>
+          每一道光代表一個方向。它們穿越同一小片空間，在稀薄與密集之間形成一件持續變化的數學光雕。
+        </p>
+      </header>
+
+      <div class="kakeya-immersive__controls">
+        <span
+          class="kakeya-motion-state"
+          data-motion-state="自動流動"
+          aria-live="polite">自動流動</span
+        >
+        <button id="immersive-toggle" type="button" aria-pressed="true">
+          暫停流動
+        </button>
+      </div>
+
+      <p class="kakeya-immersive__hint">拖曳探索角度，按下畫面即可暫停</p>
+    </section>
+
+    <section class="container kakeya-immersive__afterword" aria-labelledby="immersive-afterword-title">
+      <div>
+        <p class="kakeya-kicker">Space of directions</p>
+        <h2 id="immersive-afterword-title">看見方向的密度</h2>
+      </div>
+      <div class="kakeya-panel">
+        <p>
+          這不是對定理的精確作圖，而是一種空間感受：方向可以極多、線段可以互相穿越，而承載它們的集合仍試圖縮得極小。
+        </p>
+        <p class="kakeya-disclaimer">
+          畫面中的光暈、透明度與線段粗細屬於藝術表現，不代表集合的實際測度或維度。
+        </p>
+      </div>
+    </section>
+  </article>
+</KakeyaLayout>
+
+<script>
+  import { MODE_PRESETS } from "../../lib/kakeya/presets";
+  import { mountKakeyaScene } from "../../lib/kakeya/scene";
+  import type { KakeyaSceneController } from "../../lib/kakeya/types";
+
+  const host = document.querySelector<HTMLElement>(
+    '[data-kakeya-host][data-mode="immersive"]',
+  );
+  const stage = document.querySelector<HTMLElement>(
+    ".kakeya-immersive-stage",
+  );
+  const toggle =
+    document.querySelector<HTMLButtonElement>("#immersive-toggle");
+  const state = document.querySelector<HTMLElement>("[data-motion-state]");
+  const motionQuery = matchMedia("(prefers-reduced-motion: reduce)");
+
+  let scene: KakeyaSceneController | undefined;
+  let paused = motionQuery.matches;
+
+  const showFallback = () => {
+    if (!host) return;
+    host.dataset.state = "error";
+    host.querySelector<HTMLElement>("[data-kakeya-loading]")?.setAttribute(
+      "hidden",
+      "",
+    );
+    host.querySelector<HTMLElement>("[data-kakeya-error]")?.removeAttribute(
+      "hidden",
+    );
+  };
+
+  if (host) {
+    try {
+      scene = mountKakeyaScene(host, MODE_PRESETS.immersive);
+    } catch {
+      showFallback();
+    }
+  }
+
+  const syncMotionUi = () => {
+    if (!state || !toggle) return;
+    const label = motionQuery.matches
+      ? "靜態模式"
+      : paused
+        ? "已暫停"
+        : "自動流動";
+    state.dataset.motionState = label;
+    state.textContent = label;
+    toggle.setAttribute(
+      "aria-pressed",
+      String(!motionQuery.matches && !paused),
+    );
+    toggle.textContent = motionQuery.matches
+      ? "減少動態：保持靜態"
+      : paused
+        ? "繼續流動"
+        : "暫停流動";
+  };
+
+  const pauseScene = () => {
+    paused = true;
+    scene?.setPaused(true);
+    syncMotionUi();
+  };
+
+  toggle?.addEventListener("click", () => {
+    if (motionQuery.matches) return;
+    paused = !paused;
+    scene?.setPaused(paused);
+    syncMotionUi();
+  });
+  stage?.addEventListener("pointerdown", pauseScene);
+  motionQuery.addEventListener("change", () => {
+    paused = motionQuery.matches;
+    scene?.setReducedMotion(motionQuery.matches);
+    scene?.setPaused(paused);
+    syncMotionUi();
+  });
+
+  scene?.setPaused(paused);
+  syncMotionUi();
+  window.addEventListener("pagehide", () => scene?.destroy(), { once: true });
+</script>
+
+<style>
+  .kakeya-immersive-stage {
+    position: relative;
+    min-height: max(38rem, calc(100svh - var(--header-height) - 4rem));
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    background: #02030b;
+  }
+
+  .kakeya-immersive-stage::after {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgb(2 3 11 / 88%) 0%, transparent 64%),
+      linear-gradient(0deg, rgb(2 3 11 / 72%) 0%, transparent 42%);
+    content: "";
+    pointer-events: none;
+  }
+
+  .kakeya-immersive__veil {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    background: radial-gradient(circle at 74% 44%, transparent 0 18%, rgb(2 3 11 / 30%) 70%);
+    pointer-events: none;
+  }
+
+  .kakeya-immersive__copy,
+  .kakeya-immersive__controls,
+  .kakeya-immersive__hint {
+    position: absolute;
+    z-index: 4;
+  }
+
+  .kakeya-immersive__copy {
+    inset: clamp(2rem, 7vw, 6rem) auto auto max(1rem, calc((100% - var(--content-width)) / 2));
+    width: min(42rem, calc(100% - 2rem));
+    pointer-events: none;
+  }
+
+  .kakeya-immersive__copy h1 {
+    max-width: 10ch;
+    text-shadow: 0 0.2rem 2rem rgb(2 3 11 / 90%);
+  }
+
+  .kakeya-immersive__copy p:last-child {
+    max-width: 35rem;
+    color: var(--text-muted);
+  }
+
+  .kakeya-immersive__controls {
+    inset: auto auto clamp(1.25rem, 4vw, 3rem) max(1rem, calc((100% - var(--content-width)) / 2));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .kakeya-motion-state {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    color: var(--cyan-strong);
+    background: rgb(5 8 22 / 80%);
+    backdrop-filter: blur(0.8rem);
+  }
+
+  .kakeya-immersive__hint {
+    inset: auto max(1rem, calc((100% - var(--content-width)) / 2)) clamp(1.25rem, 4vw, 3rem) auto;
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.82em;
+    pointer-events: none;
+  }
+
+  .kakeya-immersive__afterword {
+    display: grid;
+    gap: 1.5rem;
+    padding-block: clamp(3rem, 8vw, 7rem);
+  }
+
+  @media (max-width: 43.99rem) {
+    .kakeya-immersive-stage::after {
+      background: linear-gradient(0deg, rgb(2 3 11 / 88%), transparent 74%);
+    }
+
+    .kakeya-immersive__copy {
+      top: 2.5rem;
+    }
+
+    .kakeya-immersive__copy p:last-child,
+    .kakeya-immersive__hint {
+      display: none;
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .kakeya-immersive__afterword {
+      grid-template-columns: minmax(16rem, 0.65fr) minmax(28rem, 1.35fr);
+    }
+  }
+</style>

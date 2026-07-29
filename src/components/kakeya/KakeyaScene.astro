@@ -1,0 +1,39 @@
+---
+interface Props {
+  label: string;
+  mode: "interactive" | "immersive" | "learn";
+}
+
+const { label, mode } = Astro.props;
+const descriptionId = `kakeya-${mode}-description`;
+---
+
+<div
+  class="kakeya-scene"
+  data-kakeya-host
+  data-mode={mode}
+  data-state="loading"
+  aria-label={label}
+>
+  <canvas
+    tabindex="0"
+    role="img"
+    aria-label={`${label}。可拖曳旋轉，並以滾輪或雙指縮放。`}
+    aria-describedby={descriptionId}
+  ></canvas>
+  <div class="kakeya-static" aria-hidden="true"></div>
+  <p id={descriptionId} class="sr-only">
+    此圖以有限數量的可見管線近似每個方向都有一條單位線段的概念，不是掛谷集合或數學證明。
+  </p>
+  <div class="kakeya-loading" data-kakeya-loading role="status" aria-live="polite">
+    正在建立 3D 有限取樣示意圖。
+  </div>
+  <div class="kakeya-error" data-kakeya-error hidden role="status">
+    <strong>Status：此裝置無法啟動 3D 圖形。</strong>
+    <span>Root Cause：瀏覽器、顯示卡或設定未提供必要的 WebGL 能力。</span>
+    <span>Suggested Fix：改用最新版瀏覽器、開啟硬體加速，或閱讀本頁文字說明。</span>
+  </div>
+  <noscript>
+    <p class="kakeya-noscript">啟用 JavaScript 後可操作 3D 圖形；本頁文字內容仍可直接閱讀。</p>
+  </noscript>
+</div>
