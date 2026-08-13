@@ -34,6 +34,18 @@ npm.cmd run build
 npm.cmd run test:e2e
 ```
 
+Production 公開內容閘門：
+
+```powershell
+$env:PUBLIC_SHOW_DRAFTS="false"
+$env:PUBLIC_ADS_ENABLED="false"
+$env:EXPECTED_INSIGHTS="4"
+$env:EXPECTED_PROJECTS="5"
+npm.cmd run build
+```
+
+`EXPECTED_INSIGHTS` 與 `EXPECTED_PROJECTS` 的數字是已核准公開內容的發布閘門，不是為 AdSense 填充頁數。
+
 ## 內容管理
 
 - 洞見文章位於 `src/content/insights/`。

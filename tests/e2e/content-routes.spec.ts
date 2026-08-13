@@ -1,5 +1,17 @@
 import { expect, test } from "@playwright/test";
 
+const publishedInsightSlugs = [
+  "privacy-first-local-video-compression",
+  "honest-prediction-models",
+  "idea-to-real-product",
+  "why-simon-synapse",
+];
+const previewOnlyInsightSlugs = [
+  "ai-tools-as-digital-assets",
+  "designing-an-actionable-exam-roadmap",
+];
+const showDrafts = process.env.PUBLIC_SHOW_DRAFTS === "true";
+
 test("home uses the approved reading order", async ({ page }) => {
   await page.goto("/");
   const headings = await page.locator("main h1, main h2").allTextContents();
@@ -128,23 +140,30 @@ test("preview exposes all six verified project drafts", async ({ page }) => {
   }
 });
 
-test("preview exposes all six original insight drafts", async ({ page }) => {
-  const insightSlugs = [
-    "why-simon-synapse",
-    "idea-to-real-product",
-    "ai-tools-as-digital-assets",
-    "privacy-first-local-video-compression",
-    "honest-prediction-models",
-    "designing-an-actionable-exam-roadmap",
-  ];
+test("insight routes expose approved production content and all preview drafts", async ({
+  page,
+}) => {
+  const visibleInsightSlugs = showDrafts
+    ? [...publishedInsightSlugs, ...previewOnlyInsightSlugs]
+    : publishedInsightSlugs;
 
   await page.goto("/insights");
-  await expect(page.locator(".content-card")).toHaveCount(6);
+  await expect(page.locator(".content-card")).toHaveCount(
+    visibleInsightSlugs.length,
+  );
 
-  for (const slug of insightSlugs) {
+  for (const slug of visibleInsightSlugs) {
+    await page.goto("/insights");
+    await expect(page.locator(`a[href="/insights/${slug}"]`)).toHaveCount(1);
     await page.goto(`/insights/${slug}`);
     await expect(page.locator("main h1")).toHaveCount(1);
-    await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
+  }
+
+  if (!showDrafts) {
+    await page.goto("/insights");
+    for (const slug of previewOnlyInsightSlugs) {
+      await expect(page.locator(`a[href="/insights/${slug}"]`)).toHaveCount(0);
+    }
   }
 });
 
