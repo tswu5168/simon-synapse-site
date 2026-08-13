@@ -26,7 +26,7 @@ jobs:
           PUBLIC_SHOW_DRAFTS: "false"
           PUBLIC_ADS_ENABLED: "false"
           EXPECTED_INSIGHTS: "4"
-          EXPECTED_PROJECTS: "5"
+          EXPECTED_PROJECTS: "6"
       - name: Verify preview routes
         run: npm run test:e2e -- --project=chromium
         env:

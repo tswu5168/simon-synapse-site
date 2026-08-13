@@ -29,7 +29,7 @@ npm.cmd run check
 $env:PUBLIC_SHOW_DRAFTS="true"
 $env:PUBLIC_ADS_ENABLED="false"
 $env:EXPECTED_INSIGHTS="6"
-$env:EXPECTED_PROJECTS="5"
+$env:EXPECTED_PROJECTS="6"
 npm.cmd run build
 npm.cmd run test:e2e
 ```
@@ -40,7 +40,7 @@ Production 公開內容閘門：
 $env:PUBLIC_SHOW_DRAFTS="false"
 $env:PUBLIC_ADS_ENABLED="false"
 $env:EXPECTED_INSIGHTS="4"
-$env:EXPECTED_PROJECTS="5"
+$env:EXPECTED_PROJECTS="6"
 npm.cmd run build
 ```
 

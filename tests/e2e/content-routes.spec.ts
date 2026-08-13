@@ -167,6 +167,15 @@ test("insight routes expose approved production content and all preview drafts",
   }
 });
 
+test("production returns 404 for preview-only insight routes", async ({ page }) => {
+  test.skip(showDrafts, "Preview intentionally exposes draft insight routes.");
+
+  for (const slug of previewOnlyInsightSlugs) {
+    const response = await page.goto(`/insights/${slug}`);
+    expect(response?.status()).toBe(404);
+  }
+});
+
 for (const [route, heading] of [
   ["/about", "關於 Simon Synapse"],
   ["/contact", "聯絡 Simon Synapse"],
