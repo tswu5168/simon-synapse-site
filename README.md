@@ -40,11 +40,11 @@ Production 公開內容閘門：
 $env:PUBLIC_SHOW_DRAFTS="false"
 $env:PUBLIC_ADS_ENABLED="false"
 $env:EXPECTED_INSIGHTS="4"
-$env:EXPECTED_PROJECTS="6"
+$env:EXPECTED_PROJECTS="5"
 npm.cmd run build
 ```
 
-`EXPECTED_INSIGHTS` 與 `EXPECTED_PROJECTS` 的數字是已核准公開內容的發布閘門，不是為 AdSense 填充頁數。
+EXPECTED_INSIGHTS 與 EXPECTED_PROJECTS 的數字是已核准公開內容的發布閘門，不是為 AdSense 填充頁數。Preview 會包含草稿，因此驗收 6 個 projects；production 僅驗收 5 個 draft: false projects。
 
 ## 內容管理
 

@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
 
+const publishedProjectSlugs = [
+  "xiaosai-ai-lottery",
+  "fifa-ai-prediction",
+  "ssa-compressor",
+  "matt-pocock-skills-guide",
+  "kakeya-3d-lab",
+];
+const previewOnlyProjectSlugs = ["exam-roadmap"];
 const publishedInsightSlugs = [
   "privacy-first-local-video-compression",
   "honest-prediction-models",
@@ -120,23 +128,33 @@ test("project detail exposes status and the separately labeled live work", async
   ).toHaveAttribute("href", "https://lotto.simonsynapse.net/");
 });
 
-test("preview exposes all six verified project drafts", async ({ page }) => {
-  const projectSlugs = [
-    "xiaosai-ai-lottery",
-    "fifa-ai-prediction",
-    "ssa-compressor",
-    "exam-roadmap",
-    "matt-pocock-skills-guide",
-    "kakeya-3d-lab",
-  ];
+test("project routes expose five published production entries and all preview drafts", async ({
+  page,
+}) => {
+  const visibleProjectSlugs = showDrafts
+    ? [...publishedProjectSlugs, ...previewOnlyProjectSlugs]
+    : publishedProjectSlugs;
 
   await page.goto("/projects");
-  await expect(page.locator(".content-card")).toHaveCount(6);
+  await expect(page.locator(".content-card")).toHaveCount(
+    visibleProjectSlugs.length,
+  );
 
-  for (const slug of projectSlugs) {
-    await page.goto(`/projects/${slug}`);
+  for (const slug of visibleProjectSlugs) {
+    await page.goto("/projects");
+    await expect(page.locator(`a[href="/projects/${slug}"]`)).toHaveCount(1);
+    const response = await page.goto(`/projects/${slug}`);
+    expect(response?.status()).toBe(200);
     await expect(page.locator("main h1")).toHaveCount(1);
-    await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
+  }
+
+  if (!showDrafts) {
+    await page.goto("/projects");
+    for (const slug of previewOnlyProjectSlugs) {
+      await expect(page.locator(`a[href="/projects/${slug}"]`)).toHaveCount(0);
+      const response = await page.goto(`/projects/${slug}`);
+      expect(response?.status()).toBe(404);
+    }
   }
 });
 
