@@ -17,6 +17,7 @@
 - 不可改變既有專案案例的順序、網站的路由架構、廣告允許路徑，或在首頁／索引頁載入 AdSense script。
 - 樂透相關內容只能描述統計方法、評估與限制，不得暗示保證獲利、提高中獎機率或鼓勵投注。
 - 使用 UTF-8 與台灣繁體中文；保留現有品牌、版面與中繼資料 schema。
+- 純日期的 `publishedAt` 是台灣時間的日曆日期，文章必須從該日 `00:00`（`Asia/Taipei`）起在 production 可見；不可讓 UTC 午夜造成台灣發布日的 8 小時延遲。文章日期應反映實際完成發布準備的日期，不可為符合舊計畫而回填過去日期。
 
 ## File Structure Map
 
@@ -28,6 +29,8 @@ src/content/insights/
   why-simon-synapse.md                           # 修訂並公開
   ai-tools-as-digital-assets.md                  # 保持草稿
   designing-an-actionable-exam-roadmap.md        # 保持草稿
+src/lib/content.ts                               # 台灣日曆日的公開可見性規則
+tests/unit/content.test.ts                       # 公開日期時區回歸測試
 tests/e2e/content-routes.spec.ts                 # production / Preview 可見文章集合測試
 .github/workflows/ci.yml                         # production build 的 4 篇文章閘門
 README.md                                        # production 與 Preview 驗收命令
@@ -148,6 +151,8 @@ docs/superpowers/plans/2026-08-13-adsense-content-readiness.md
 
 **Files:**
 - Modify: `src/content/insights/idea-to-real-product.md`
+- Modify: `src/lib/content.ts`
+- Modify: `tests/unit/content.test.ts`
 
 - [ ] **Step 1: 將六階段流程落實為可檢查的實作案例。**
   - 針對問題定義、資料與風險、原型、驗證、發布、維護各階段，提供至少一個來自本站已公開作品的具體輸入、產出或驗收訊號。
@@ -155,16 +160,21 @@ docs/superpowers/plans/2026-08-13-adsense-content-readiness.md
   - 移除空泛的成功敘事，新增「不適用情況」與「何時應停止或縮小範圍」段落。
 
 - [ ] **Step 2: 校正 frontmatter 與來源。**
-  - `draft: false`、`featured: false`、首次公開與更新日期皆為 `2026-08-13`。
+  - `draft: false`、`featured: false`、首次公開與更新日期皆為實際發布準備完成日 `2026-08-14`。
   - 使用可支撐工程流程的官方文件或一手專案來源，確保 3 個以上來源均有實際用途。
   - 改寫摘要與 SEO 文案，使其描述讀者將得到的實際檢查方法，而非廣泛的創業承諾。
 
-- [ ] **Step 3: 建置單篇文章驗收。**
+- [ ] **Step 3: 修正台灣發布日期的共享可見性規則。**
+  - 先在 `tests/unit/content.test.ts` 新增失敗測試：純日期 `2026-08-14` 的公開文章，在 `2026-08-14T00:00:00+08:00` 必須可見，並在 `2026-08-13T23:59:59+08:00` 保持不可見。
+  - 修改 `src/lib/content.ts`，以 `Asia/Taipei` 的年、月、日比較純日期內容的公開資格，而不是直接比較 UTC instant；保留草稿過濾與排序行為。
+  - 重跑 unit tests，確認原有未來日期與草稿規則未回歸。
+
+- [ ] **Step 4: 建置單篇文章驗收。**
   - 執行 `npm.cmd run check`。
   - 確認文章詳情頁所有站內專案連結存在且可由 `scripts/verify-build.mjs` 通過。
 
-- [ ] **Step 4: Commit。**
-  - `git add src/content/insights/idea-to-real-product.md`
+- [ ] **Step 5: Commit。**
+  - `git add src/content/insights/idea-to-real-product.md src/lib/content.ts tests/unit/content.test.ts`
   - `git commit -m "content: publish product delivery case study"`
 
 ## Task 5: 修訂並公開「為什麼建立 Simon Synapse」
@@ -179,7 +189,7 @@ docs/superpowers/plans/2026-08-13-adsense-content-readiness.md
   - 連結 `/about/`、`/editorial-policy/`、`/privacy/`、`/terms/`、`/disclaimer/` 與至少兩個實作頁面。
 
 - [ ] **Step 2: 校正 frontmatter 與來源。**
-  - `draft: false`、`featured: false`、首次公開與更新日期皆為 `2026-08-13`。
+  - `draft: false`、`featured: false`、首次公開與更新日期皆為實際發布準備完成日 `2026-08-14`。
   - 來源可使用官方文件或可公開檢查的站內政策／專案，不得虛構外部背書。
   - 確保描述、SEO 欄位與正文的服務範圍一致。
 
