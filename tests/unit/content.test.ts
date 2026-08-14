@@ -13,6 +13,27 @@ const entries = [
 ];
 
 describe("content visibility", () => {
+  it("uses the Taipei calendar day for date-only production publication", () => {
+    const entry = {
+      id: "taipei-release",
+      data: { draft: false, publishedAt: new Date("2026-08-14") },
+    };
+
+    expect(
+      selectVisibleEntries([entry], {
+        showDrafts: false,
+        now: new Date("2026-08-14T00:00:00+08:00"),
+      }).map((visibleEntry) => visibleEntry.id),
+    ).toEqual(["taipei-release"]);
+
+    expect(
+      selectVisibleEntries([entry], {
+        showDrafts: false,
+        now: new Date("2026-08-13T23:59:59+08:00"),
+      }).map((visibleEntry) => visibleEntry.id),
+    ).toEqual([]);
+  });
+
   it("excludes drafts and future entries in production", () => {
     const visible = selectVisibleEntries(entries, {
       showDrafts: false,

@@ -1,5 +1,25 @@
 import { expect, test } from "@playwright/test";
 
+const publishedProjectSlugs = [
+  "xiaosai-ai-lottery",
+  "fifa-ai-prediction",
+  "ssa-compressor",
+  "matt-pocock-skills-guide",
+  "kakeya-3d-lab",
+];
+const previewOnlyProjectSlugs = ["exam-roadmap"];
+const publishedInsightSlugs = [
+  "privacy-first-local-video-compression",
+  "honest-prediction-models",
+  "idea-to-real-product",
+  "why-simon-synapse",
+];
+const previewOnlyInsightSlugs = [
+  "ai-tools-as-digital-assets",
+  "designing-an-actionable-exam-roadmap",
+];
+const showDrafts = process.env.PUBLIC_SHOW_DRAFTS === "true";
+
 test("home uses the approved reading order", async ({ page }) => {
   await page.goto("/");
   const headings = await page.locator("main h1, main h2").allTextContents();
@@ -108,43 +128,69 @@ test("project detail exposes status and the separately labeled live work", async
   ).toHaveAttribute("href", "https://lotto.simonsynapse.net/");
 });
 
-test("preview exposes all six verified project drafts", async ({ page }) => {
-  const projectSlugs = [
-    "xiaosai-ai-lottery",
-    "fifa-ai-prediction",
-    "ssa-compressor",
-    "exam-roadmap",
-    "matt-pocock-skills-guide",
-    "kakeya-3d-lab",
-  ];
+test("project routes expose five published production entries and all preview drafts", async ({
+  page,
+}) => {
+  const visibleProjectSlugs = showDrafts
+    ? [...publishedProjectSlugs, ...previewOnlyProjectSlugs]
+    : publishedProjectSlugs;
 
   await page.goto("/projects");
-  await expect(page.locator(".content-card")).toHaveCount(6);
+  await expect(page.locator(".content-card")).toHaveCount(
+    visibleProjectSlugs.length,
+  );
 
-  for (const slug of projectSlugs) {
-    await page.goto(`/projects/${slug}`);
+  for (const slug of visibleProjectSlugs) {
+    await page.goto("/projects");
+    await expect(page.locator(`a[href="/projects/${slug}"]`)).toHaveCount(1);
+    const response = await page.goto(`/projects/${slug}`);
+    expect(response?.status()).toBe(200);
     await expect(page.locator("main h1")).toHaveCount(1);
-    await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
+  }
+
+  if (!showDrafts) {
+    await page.goto("/projects");
+    for (const slug of previewOnlyProjectSlugs) {
+      await expect(page.locator(`a[href="/projects/${slug}"]`)).toHaveCount(0);
+      const response = await page.goto(`/projects/${slug}`);
+      expect(response?.status()).toBe(404);
+    }
   }
 });
 
-test("preview exposes all six original insight drafts", async ({ page }) => {
-  const insightSlugs = [
-    "why-simon-synapse",
-    "idea-to-real-product",
-    "ai-tools-as-digital-assets",
-    "privacy-first-local-video-compression",
-    "honest-prediction-models",
-    "designing-an-actionable-exam-roadmap",
-  ];
+test("insight routes expose approved production content and all preview drafts", async ({
+  page,
+}) => {
+  const visibleInsightSlugs = showDrafts
+    ? [...publishedInsightSlugs, ...previewOnlyInsightSlugs]
+    : publishedInsightSlugs;
 
   await page.goto("/insights");
-  await expect(page.locator(".content-card")).toHaveCount(6);
+  await expect(page.locator(".content-card")).toHaveCount(
+    visibleInsightSlugs.length,
+  );
 
-  for (const slug of insightSlugs) {
+  for (const slug of visibleInsightSlugs) {
+    await page.goto("/insights");
+    await expect(page.locator(`a[href="/insights/${slug}"]`)).toHaveCount(1);
     await page.goto(`/insights/${slug}`);
     await expect(page.locator("main h1")).toHaveCount(1);
-    await expect(page.getByText("AI 協作揭露", { exact: true })).toBeVisible();
+  }
+
+  if (!showDrafts) {
+    await page.goto("/insights");
+    for (const slug of previewOnlyInsightSlugs) {
+      await expect(page.locator(`a[href="/insights/${slug}"]`)).toHaveCount(0);
+    }
+  }
+});
+
+test("production returns 404 for preview-only insight routes", async ({ page }) => {
+  test.skip(showDrafts, "Preview intentionally exposes draft insight routes.");
+
+  for (const slug of previewOnlyInsightSlugs) {
+    const response = await page.goto(`/insights/${slug}`);
+    expect(response?.status()).toBe(404);
   }
 });
 

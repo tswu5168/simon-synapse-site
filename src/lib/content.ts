@@ -6,14 +6,36 @@ export type PublishableEntry = {
   };
 };
 
+const taipeiCalendarDateFormatter = new Intl.DateTimeFormat("en-US", {
+  calendar: "iso8601",
+  day: "2-digit",
+  month: "2-digit",
+  numberingSystem: "latn",
+  timeZone: "Asia/Taipei",
+  year: "numeric",
+});
+
+// Content publication dates are Asia/Taipei calendar days, not UTC instants.
+function taipeiCalendarDate(value: Date): string {
+  const parts = Object.fromEntries(
+    taipeiCalendarDateFormatter
+      .formatToParts(value)
+      .filter(({ type }) => type !== "literal")
+      .map(({ type, value: partValue }) => [type, partValue] as const),
+  );
+
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 export function selectVisibleEntries<T extends PublishableEntry>(
   entries: T[],
   options: { showDrafts: boolean; now?: Date },
 ): T[] {
   const now = options.now ?? new Date();
+  const today = taipeiCalendarDate(now);
   return entries.filter(
     (entry) =>
-      entry.data.publishedAt.getTime() <= now.getTime() &&
+      taipeiCalendarDate(entry.data.publishedAt) <= today &&
       (options.showDrafts || !entry.data.draft),
   );
 }
