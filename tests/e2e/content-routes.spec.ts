@@ -9,6 +9,7 @@ const publishedProjectSlugs = [
 ];
 const previewOnlyProjectSlugs = ["exam-roadmap"];
 const publishedInsightSlugs = [
+  "claude-code-hooks-field-manual",
   "privacy-first-local-video-compression",
   "honest-prediction-models",
   "idea-to-real-product",
@@ -116,6 +117,21 @@ test("detail page exposes author, dates, sources, and AI disclosure", async ({
   await expect(
     page.getByRole("heading", { name: "參考來源", exact: true }),
   ).toBeVisible();
+});
+
+test("Hook field manual static asset exposes its knowledge-base route", async ({
+  page,
+}) => {
+  const response = await page.goto("/learning/claude-code-hooks/index.html");
+  expect(response?.status()).toBe(200);
+  await expect(page).toHaveTitle("Hook Field Manual | Claude Code 實作手冊");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://simonsynapse.net/learning/claude-code-hooks/",
+  );
+  await expect(
+    page.getByRole("link", { name: "返回學習歷程", exact: true }),
+  ).toHaveAttribute("href", "/insights/claude-code-hooks-field-manual/");
 });
 
 test("project detail exposes status and the separately labeled live work", async ({

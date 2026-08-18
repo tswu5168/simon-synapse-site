@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Claude Code Hook 的離線互動式實作手冊。">
+  <link rel="canonical" href="https://simonsynapse.net/learning/claude-code-hooks/">
+  <title>Hook Field Manual | Claude Code 實作手冊</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f8fb;
+      --surface: #ffffff;
+      --ink: #12243a;
+      --muted: #5b6f84;
+      --line: #cbd7e3;
+      --teal: #087f78;
+      --teal-soft: #dff4ef;
+      --violet: #6142bd;
+      --violet-soft: #efeaff;
+      --red: #9b3440;
+      --red-soft: #fff6f7;
+      --focus: #184b9d;
+      --code: #10233c;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: 16px;
+      top: 12px;
+      z-index: 20;
+      padding: 10px 14px;
+      transform: translateY(-180%);
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+    .site-header { border-bottom: 1px solid var(--line); background: var(--surface); }
+    .header-inner, .hero-inner, .manual-layout, .site-footer-inner { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .header-inner { display: flex; min-height: 66px; align-items: center; justify-content: space-between; gap: 20px; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+    }
+
+    .brand-mark { position: relative; width: 22px; height: 22px; border: 2px solid var(--teal); transform: rotate(45deg); }
+    .brand-mark::after { position: absolute; right: -6px; bottom: -6px; width: 7px; height: 7px; border: 2px solid var(--violet); background: var(--surface); content: ""; }
+    .header-actions { display: flex; align-items: center; gap: 14px; }
+    .knowledge-link { color: var(--ink); font-size: 13px; font-weight: 800; text-decoration-color: var(--teal); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+    .header-state { padding-left: 12px; border-left: 3px solid var(--teal); color: var(--teal); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
+
+    .hero { border-bottom: 1px solid var(--line); background: var(--paper); }
+    .hero-inner { padding: 58px 0 42px; }
+    .eyebrow, .section-tag {
+      margin: 0;
+      color: var(--violet);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 760px; margin: 14px 0 16px; font-size: 62px; line-height: 1.03; letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 29px; line-height: 1.2; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; line-height: 1.3; letter-spacing: 0; }
+    .hero-copy { max-width: 710px; margin-bottom: 0; color: #465b73; font-size: 17px; }
+
+    .manual-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); align-items: stretch; }
+    .step-rail { padding: 30px 18px; border-right: 1px solid var(--line); }
+    .rail-caption { margin: 0 0 16px; color: #73869a; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; }
+    .step-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+    .step-link { display: flex; width: 100%; min-height: 48px; align-items: center; gap: 10px; padding: 8px 0; border: 0; background: transparent; color: #61758a; text-align: left; }
+    .step-link[aria-current="step"] { color: var(--ink); }
+    .step-number { display: grid; width: 24px; height: 24px; flex: 0 0 24px; place-items: center; border: 1px solid #9bafc2; border-radius: 50%; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; font-weight: 800; }
+    .step-link[aria-current="step"] .step-number { border-color: var(--teal); background: var(--teal); color: #fff; }
+    .step-label { font-size: 13px; font-weight: 700; line-height: 1.35; }
+
+    .manual-main { min-width: 0; padding: 40px 44px 62px; }
+    .section-band { padding: 0 0 34px; border-bottom: 1px solid var(--line); }
+    .section-band + .section-band { padding-top: 34px; }
+    .section-tag { margin: 0 0 9px; color: var(--teal); }
+    .section-copy { max-width: 760px; margin-bottom: 22px; color: var(--muted); font-size: 15px; }
+
+    .comparison-grid, .scope-grid, .template-grid { display: grid; gap: 10px; }
+    .comparison-grid, .scope-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .choice-card, .scope-button, .template-button { min-height: 122px; padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: left; }
+    .choice-card strong, .scope-button strong, .template-button strong { display: block; margin-bottom: 8px; font-size: 15px; line-height: 1.25; }
+    .choice-card span, .scope-button span, .template-button span { display: block; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .choice-card.is-hook { border-color: #9cc7c0; background: var(--teal-soft); box-shadow: inset 3px 0 0 var(--teal); }
+    .scope-button[aria-pressed="true"], .template-button[aria-pressed="true"] { border-color: var(--teal); background: var(--teal-soft); box-shadow: inset 3px 0 0 var(--teal); }
+    .path { display: block; margin-bottom: 9px; color: var(--violet); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; font-weight: 800; overflow-wrap: anywhere; }
+    .scope-readout { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; margin-top: 14px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .scope-readout-label { color: #65798e; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; }
+    .scope-readout-value { color: var(--ink); font-size: 14px; overflow-wrap: anywhere; }
+
+    .builder-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+    .builder-summary { max-width: 290px; margin: 0; color: var(--muted); font-size: 13px; }
+    .form-area { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .field-group { min-width: 0; }
+    .field-label { display: block; margin-bottom: 8px; color: var(--ink); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
+    .select-control, .text-control { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #9eb2c3; border-radius: 4px; background: var(--surface); color: var(--ink); }
+    textarea.text-control { min-height: 92px; resize: vertical; }
+    .control-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .matcher-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+    .matcher-note { max-width: 238px; margin: 0; padding: 10px 12px; border-left: 3px solid var(--violet); background: var(--violet-soft); color: #4a398e; font-size: 12px; line-height: 1.55; }
+    .matcher-unavailable { margin: 0; padding: 13px 14px; border-left: 3px solid #8c6bc5; background: var(--violet-soft); color: #4a398e; font-size: 13px; }
+    .diagram-target { border-radius: 6px; transition: outline-color 160ms ease, background-color 160ms ease; }
+    .diagram-target.is-diagram-highlighted { outline: 3px solid #4b9f94; outline-offset: 4px; background: #f3fbf8; }
+
+    .handler-fields { padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: #fbfcfd; }
+    .handler-fields-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .handler-fields-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .handler-field-group[hidden] { display: none; }
+    .field-warning { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid var(--red); background: var(--red-soft); color: #7d2b34; font-size: 13px; }
+
+    .output-shell { padding-top: 26px; border-top: 1px solid var(--line); }
+    .output-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 10px; }
+    .output-head h3 { margin: 0; }
+    .copy-button { min-height: 44px; padding: 0 14px; border: 1px solid var(--teal); border-radius: 4px; background: var(--surface); color: var(--teal); font-weight: 800; }
+    .copy-button:hover:not(:disabled) { background: var(--teal-soft); }
+    .copy-button:disabled { border-color: #b8c4cf; color: #7a8998; cursor: not-allowed; }
+    .config-box { min-height: 238px; margin: 0; padding: 18px; overflow: auto; border: 1px solid #1d3654; border-radius: 6px; background: var(--code); color: #e1faf3; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; line-height: 1.7; tab-size: 2; white-space: pre; }
+    .config-error { min-height: 24px; margin: 10px 0 0; color: var(--red); font-size: 13px; }
+    .plain-note { margin: 14px 0 0; padding: 13px 14px; border-left: 3px solid var(--teal); background: var(--teal-soft); color: #275b59; font-size: 13px; }
+    .next-step { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 16px 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+    .next-step p { margin: 0; color: var(--muted); font-size: 14px; }
+    .next-step strong { color: var(--ink); }
+    .next-step-button { min-height: 44px; flex: 0 0 auto; padding: 0 14px; border: 1px solid var(--violet); border-radius: 4px; background: var(--surface); color: var(--violet); font-weight: 800; }
+    .next-step-button:hover:not(:disabled) { background: var(--violet-soft); }
+    .next-step-button:disabled { border-color: #b8c4cf; color: #778a9c; cursor: not-allowed; }
+
+    .handler-reference { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+    .handler-reference-item { min-height: 154px; padding: 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); }
+    .handler-reference-item strong { display: block; margin-bottom: 8px; color: var(--violet); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; }
+    .handler-reference-item p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .compatibility-note { margin: 0; padding: 16px; border-left: 3px solid var(--violet); background: var(--violet-soft); color: #453585; font-size: 14px; }
+
+    .diagram-panel { position: relative; }
+    .diagram-panel > header { max-width: 760px; }
+    .diagram-panel > header p { margin-bottom: 8px; }
+    .diagram-panel > header h2 { margin-bottom: 8px; }
+    .diagram-panel > header .section-copy { margin-bottom: 20px; }
+    .diagram-flow { display: grid; grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr) 26px minmax(0, 1fr) 26px minmax(0, 1fr); gap: 0; align-items: stretch; }
+    .diagram-node { display: flex; min-height: 108px; flex-direction: column; justify-content: center; padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); text-align: left; }
+    .diagram-node small { display: block; margin-bottom: 7px; color: var(--violet); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; }
+    .diagram-node strong { display: block; font-size: 15px; line-height: 1.32; }
+    .diagram-node span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .diagram-node[aria-pressed="true"] { border-color: var(--teal); background: var(--teal-soft); box-shadow: inset 3px 0 0 var(--teal); }
+    .diagram-edge { display: grid; min-width: 0; place-items: center; color: var(--violet); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 20px; font-weight: 800; }
+    .diagram-detail { min-height: 70px; margin: 16px 0 0; padding: 15px 16px; border-left: 3px solid var(--teal); background: #edf8f5; color: #285651; font-size: 14px; }
+    .diagram-detail strong { color: var(--ink); }
+    .diagram-callout { margin: 14px 0 0; color: var(--muted); font-size: 13px; }
+    .choice-card[aria-pressed="true"] { border-color: var(--teal); background: var(--teal-soft); box-shadow: inset 3px 0 0 var(--teal); }
+    .choice-card.is-hook[aria-pressed="true"] { border-color: var(--teal); }
+    .safety-flow { grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr); }
+
+    .safety-layout { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(260px, 0.92fr); gap: 18px; align-items: stretch; }
+    .safety-branch { padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+    .safety-branch h3 { margin-bottom: 8px; }
+    .safety-branch p { margin-bottom: 16px; color: var(--muted); font-size: 14px; }
+    .simulation-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .simulation-button { min-height: 52px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); font-weight: 800; text-align: left; }
+    .simulation-button strong { display: block; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; }
+    .simulation-button span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; font-weight: 600; }
+    .simulation-button[data-simulation="block"] { border-color: #c97d86; color: var(--red); }
+    .simulation-button[data-simulation="allow"] { border-color: #8cbfb7; color: var(--teal); }
+    .simulation-result { display: flex; min-height: 178px; flex-direction: column; justify-content: center; padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: #fbfcfd; }
+    .simulation-result small { margin-bottom: 8px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; }
+    .simulation-result strong { margin-bottom: 8px; font-size: 18px; }
+    .simulation-result p { margin: 0; color: var(--muted); font-size: 14px; }
+    .simulation-result[data-mode="block"] { border-color: #c97d86; background: var(--red-soft); }
+    .simulation-result[data-mode="allow"] { border-color: #8cbfb7; background: var(--teal-soft); }
+    .simulation-note { margin: 14px 0 0; color: var(--muted); font-size: 12px; }
+
+    .verification-loop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .verification-loop .diagram-node { min-height: 128px; }
+    .loop-sequence { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--violet); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; font-weight: 800; }
+    .verification-steps { display: grid; gap: 0; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+    .verification-steps li { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .verification-index { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #9eb2c3; border-radius: 50%; color: var(--violet); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11px; font-weight: 800; }
+    .verification-check-row { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: stretch; }
+    .verification-check-row input { width: 20px; height: 20px; margin: 12px 0 0; accent-color: var(--teal); }
+    .verification-check-label { display: block; min-height: 44px; padding: 4px 0; cursor: pointer; }
+    .verification-check-title { display: block; margin-bottom: 5px; color: var(--ink); font-size: 16px; font-weight: 700; line-height: 1.3; }
+    .verification-check-copy { display: block; color: var(--muted); font-size: 14px; }
+    .verification-check-row input:checked + .verification-check-label { opacity: 0.68; }
+    .verification-check-row input:checked + .verification-check-label .verification-check-title { text-decoration: line-through; }
+    .verification-progress { margin: 16px 0 0; color: #315d58; font-size: 13px; }
+    .command-chip { display: inline-block; max-width: 100%; margin: 4px 2px 0 0; padding: 3px 7px; overflow-wrap: anywhere; border: 1px solid #b7c9d9; border-radius: 3px; background: #f1f6fb; color: #284968; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; }
+    .stop-guard { margin: 22px 0 0; padding: 16px; border-left: 3px solid var(--red); background: var(--red-soft); color: #6e3038; font-size: 14px; }
+    .source-list { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .source-list a { color: #315d95; font-size: 13px; overflow-wrap: anywhere; text-underline-offset: 3px; }
+    .site-footer { border-top: 1px solid var(--line); background: var(--surface); }
+    .site-footer-inner { padding: 24px 0 32px; color: var(--muted); font-size: 13px; }
+    .sr-only, #manual-status { position: fixed; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+
+    @media (max-width: 980px) {
+      .manual-layout { grid-template-columns: 1fr; }
+      .step-rail { overflow-x: auto; padding: 14px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+      .rail-caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .step-list { display: flex; width: max-content; min-width: 100%; padding: 0 20px; }
+      .step-link { width: auto; min-width: 148px; }
+      .manual-main { padding: 36px 0 54px; }
+    }
+
+    @media (max-width: 768px) {
+      .header-inner, .hero-inner, .manual-layout, .site-footer-inner { width: min(100% - 32px, 1180px); }
+      .header-inner { min-height: 58px; }
+      .header-state { font-size: 9px; }
+      .hero-inner { padding: 42px 0 30px; }
+      h1 { font-size: 40px; }
+      .comparison-grid, .scope-grid, .template-grid, .control-grid { grid-template-columns: 1fr; }
+      .matcher-row { grid-template-columns: 1fr; }
+      .matcher-note { max-width: none; }
+      .builder-head, .output-head { align-items: flex-start; flex-direction: column; }
+      .handler-reference { grid-template-columns: 1fr; }
+      .diagram-flow, .safety-flow, .verification-loop, .safety-layout { grid-template-columns: 1fr; }
+      .diagram-edge { min-height: 24px; }
+      .simulation-actions { grid-template-columns: 1fr; }
+      .verification-steps li { grid-template-columns: 42px minmax(0, 1fr); gap: 10px; }
+      .next-step { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 460px) {
+      .brand { font-size: 10px; }
+      .brand-mark { width: 18px; height: 18px; }
+      .knowledge-link { font-size: 12px; }
+      .header-state { display: none; }
+      .step-link { min-width: 132px; }
+      h1 { font-size: 34px; }
+      h2 { font-size: 25px; }
+      .config-box { font-size: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#manual-main">跳至主要內容</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>HOOK FIELD MANUAL</span></div>
+      <div class="header-actions"><a class="knowledge-link" href="/insights/claude-code-hooks-field-manual/">返回學習歷程</a><div class="header-state">LOCAL FIRST</div></div>
+    </div>
+  </header>
+
+  <main id="manual-main">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-inner">
+        <p class="eyebrow">CLAUDE CODE · PRACTICAL SETUP</p>
+        <h1 id="page-title">把重複提醒，換成會準時出現的規則。</h1>
+        <p class="hero-copy">這份手冊不會替你寫入任何設定，也不會執行任何命令。它只把 Hook 的判斷、設定與驗證流程拆開，讓你能看懂後再安全地套用到自己的工作環境。</p>
+      </div>
+    </section>
+
+    <div class="manual-layout">
+      <nav class="step-rail" aria-label="Hook 設定步驟">
+        <p class="rail-caption">YOUR ROUTE</p>
+        <ol class="step-list">
+          <li><button class="step-link" type="button" data-step-target="when-to-use" aria-current="step"><span class="step-number">00</span><span class="step-label">先判斷<br>需不需要 Hook</span></button></li>
+          <li><button class="step-link" type="button" data-step-target="scope-section"><span class="step-number">01</span><span class="step-label">選設定位置</span></button></li>
+          <li><button class="step-link" type="button" data-step-target="builder-section"><span class="step-number">02</span><span class="step-label">選觸發時機</span></button></li>
+          <li><button class="step-link" type="button" data-step-target="builder-section"><span class="step-number">03</span><span class="step-label">縮小觸發範圍</span></button></li>
+          <li><button class="step-link" type="button" data-step-target="builder-section"><span class="step-number">04</span><span class="step-label">產生設定</span></button></li>
+          <li><button class="step-link" type="button" data-step-target="handler-section"><span class="step-number">05</span><span class="step-label">理解 handler</span></button></li>
+        </ol>
+      </nav>
+
+      <div class="manual-main">
+        <section class="section-band diagram-panel" id="when-to-use" data-diagram="decision" aria-labelledby="when-to-use-title">
+          <p class="section-tag">STEP 00 / CHOOSE THE RIGHT TOOL</p>
+          <h2 id="when-to-use-title">先把三種情況分清楚。</h2>
+          <p class="section-copy">Hook 適合固定時機、必須重複執行的規則。它不是拿來取代每一段提示文字，也不是把每一個習慣都自動化。</p>
+          <div class="comparison-grid" role="group" aria-label="選擇規則工具">
+            <button class="choice-card" type="button" data-diagram-node="decision-once" aria-pressed="false"><strong>一次性的任務</strong><span>只需要這次處理，直接在對話裡交代即可。沒有必要留下長期規則。</span></button>
+            <button class="choice-card" type="button" data-diagram-node="decision-guidance" aria-pressed="false"><strong><code>CLAUDE.md</code></strong><span>放專案背景、慣例、建置指令與合作方式。它是說明，不是強制執行機制。</span></button>
+            <button class="choice-card is-hook" type="button" data-diagram-node="decision-hook" aria-pressed="true"><strong>Hook</strong><span>在指定生命週期點固定執行。適合安全檢查、驗收、格式化與通知。</span></button>
+          </div>
+          <p class="diagram-detail" id="diagram-detail" aria-live="polite"><strong>目前焦點：Hook。</strong> 當一個動作必須在固定時機執行，而且不能靠模型自己記得，就適合做成 Hook。</p>
+          <div class="next-step" aria-live="polite">
+            <p id="decision-next-copy"><strong>下一步：</strong> 先選擇這條規則的設定範圍，再從情境模板開始調整。</p>
+            <button class="next-step-button" id="decision-next-step" type="button" data-next-target="scope-section">前往選擇設定範圍</button>
+          </div>
+        </section>
+
+        <section class="section-band diagram-panel" id="scope-section" data-diagram="scope" aria-labelledby="scope-title">
+          <p class="section-tag">STEP 01 / SETTINGS SCOPE</p>
+          <h2 id="scope-title">決定這條規則要留在哪裡。</h2>
+          <p class="section-copy">設定位置決定誰會讀到它，以及它是否應該被提交到版本控制。先選範圍，再複製 JSON，避免把個人路徑帶進團隊專案。</p>
+          <div class="scope-grid" id="scope-picker" role="group" aria-label="設定範圍">
+            <button class="scope-button" type="button" data-scope="global" data-diagram-node="scope-global" aria-pressed="false"><span class="path">~/.claude/settings.json</span><strong>Global</strong><span>個人所有專案共用。不提交到專案版本控制。</span></button>
+            <button class="scope-button" type="button" data-scope="project" data-diagram-node="scope-project" aria-pressed="true"><span class="path">.claude/settings.json</span><strong>Project</strong><span>團隊可共享，也可提交。適合一致的專案檢查。</span></button>
+            <button class="scope-button" type="button" data-scope="local" data-diagram-node="scope-local" aria-pressed="false"><span class="path">.claude/settings.local.json</span><strong>Local</strong><span>只留在本機。適合個人路徑與不可共享的設定。</span></button>
+          </div>
+          <div class="scope-readout" aria-live="polite"><span class="scope-readout-label">目前建議位置</span><span class="scope-readout-value" id="scope-readout">.claude/settings.json：適合希望團隊共同維護的 Hook。</span></div>
+        </section>
+
+        <section class="section-band diagram-panel" id="lifecycle-section" data-diagram="lifecycle" aria-labelledby="lifecycle-title">
+          <header>
+            <p class="section-tag">CONCEPT MAP / LIFECYCLE</p>
+            <h2 id="lifecycle-title">Hook 的四段式流程。</h2>
+            <p class="section-copy">設定不是一段魔法文字。每一次觸發都有清楚的順序：先決定時間點，再過濾目標，最後交給適合的 handler 處理。</p>
+          </header>
+          <div class="diagram-flow" role="group" aria-label="Hook 生命週期流程" aria-describedby="lifecycle-detail">
+            <button class="diagram-node" type="button" data-diagram-node="lifecycle-event" aria-pressed="false"><small>01 / EVENT</small><strong>何時觸發</strong><span>例如 PreToolUse、PostToolUse、Stop、SessionStart。</span></button>
+            <span class="diagram-edge" aria-hidden="true">→</span>
+            <button class="diagram-node" type="button" data-diagram-node="lifecycle-matcher" aria-pressed="false"><small>02 / MATCHER</small><strong>攔截哪一類操作</strong><span>例如 `Bash`、`Edit|Write`；大小寫會影響結果。</span></button>
+            <span class="diagram-edge" aria-hidden="true">→</span>
+            <button class="diagram-node" type="button" data-diagram-node="lifecycle-handler" aria-pressed="false"><small>03 / HANDLER</small><strong>實際做什麼</strong><span>選 command、http、mcp_tool、prompt 或 agent。</span></button>
+            <span class="diagram-edge" aria-hidden="true">→</span>
+            <button class="diagram-node" type="button" data-diagram-node="lifecycle-result" aria-pressed="false"><small>04 / RESULT</small><strong>放行、阻擋或回報</strong><span>讓下一步依規則繼續，或把問題交回處理。</span></button>
+          </div>
+          <p class="diagram-callout">點選任一節點可查看它在設定器裡對應的欄位與實務提醒。</p>
+          <p class="diagram-detail" id="lifecycle-detail" aria-live="polite"><strong>目前焦點：Event。</strong> Event 對應下方設定器的 Event 欄，先決定觸發時機。</p>
+        </section>
+
+        <section class="section-band" id="builder-section" aria-labelledby="builder-title">
+          <div class="builder-head">
+            <div><p class="section-tag">STEP 02 TO 04 / CONFIGURATOR</p><h2 id="builder-title">從工作情境產生最小設定。</h2></div>
+            <p class="builder-summary" id="template-summary">選擇一個範例，再依你的工具與環境調整。</p>
+          </div>
+
+          <div class="form-area">
+            <div class="field-group">
+              <span class="field-label" id="template-label">選擇工作情境</span>
+              <div class="template-grid" id="template-picker" role="group" aria-labelledby="template-label">
+                <button class="template-button" type="button" data-template-id="secret-guard" aria-pressed="true"><strong>Git 提交敏感資料防護</strong><span>提交前先檢查，不讓 `.env` 或密鑰誤進版本庫。</span></button>
+                <button class="template-button" type="button" data-template-id="format-after-edit" aria-pressed="false"><strong>儲存後格式化</strong><span>在 Edit 或 Write 後呼叫自己的格式化指令碼。</span></button>
+                <button class="template-button" type="button" data-template-id="stop-check" aria-pressed="false"><strong>工作結束驗收</strong><span>在 Stop 前檢查可驗證的完成條件。</span></button>
+                <button class="template-button" type="button" data-template-id="session-context" aria-pressed="false"><strong>開始工作時補充脈絡</strong><span>在 SessionStart 快速載入必要的動態背景。</span></button>
+              </div>
+            </div>
+
+            <div class="control-grid">
+              <div class="field-group diagram-target" id="event-control" data-config-target><label class="field-label" for="event-picker">Event：何時觸發</label><select class="select-control" id="event-picker" data-event><option value="PreToolUse">PreToolUse：工具執行前</option><option value="PostToolUse">PostToolUse：工具完成後</option><option value="Stop">Stop：準備結束工作時</option><option value="SessionStart">SessionStart：工作階段開始時</option></select></div>
+              <div class="field-group"><label class="field-label" for="handler-picker">Handler：要做什麼</label><select class="select-control" id="handler-picker" data-handler></select></div>
+            </div>
+
+            <div class="field-group diagram-target" id="matcher-control" data-config-target>
+              <div class="matcher-row" id="matcher-input-row">
+                <div><label class="field-label" for="matcher-input">Matcher：攔截什麼</label><input class="text-control" id="matcher-input" type="text" spellcheck="false" value="Bash"></div>
+                <p class="matcher-note">`matcher` 是單一、大小寫敏感的字串。例如 `Bash` 或 `Edit|Write`，不是 JSON 陣列。</p>
+              </div>
+              <p class="matcher-unavailable" id="matcher-unavailable" hidden><strong>Stop 不支援 matcher。</strong> 它會在每次回合結束時觸發；此頁產生的 Stop 設定不會輸出 matcher，避免建立看似有限制、實際被忽略的規則。</p>
+            </div>
+
+            <div class="diagram-target" id="handler-control" data-config-target>
+              <div class="handler-fields" id="handler-fields" aria-live="polite">
+                <div class="handler-fields-head"><h3 id="handler-fields-title">command 必填欄位</h3><p id="handler-fields-help">使用可重複執行的指令碼。Hook 事件 JSON 會透過 stdin 傳入。</p></div>
+              <div class="handler-field-group" data-handler-fields="command">
+                <div class="control-grid">
+                  <div class="field-group"><label class="field-label" for="command-input">command</label><input class="text-control" id="command-input" data-handler-field="command" type="text" spellcheck="false"></div>
+                  <div class="field-group"><label class="field-label" for="args-input">args，每行一個，可留空</label><textarea class="text-control" id="args-input" data-handler-field="args" spellcheck="false"></textarea></div>
+                </div>
+                <p class="field-warning">使用 `args` 時會採 exec form；在 Windows 上請讓 `command` 指向真正可執行檔，例如 `node`，再把指令碼路徑放進 `args`。</p>
+              </div>
+              <div class="handler-field-group" data-handler-fields="http" hidden>
+                <label class="field-label" for="url-input">url</label><input class="text-control" id="url-input" data-handler-field="url" type="url" spellcheck="false" placeholder="https://example.invalid/hooks/event">
+                <p class="field-warning">HTTP Hook 會把事件 JSON 以 POST 傳到此 URL。正式使用前要確認組織的 `allowedHttpHookUrls` 設定與憑證處理方式。</p>
+              </div>
+              <div class="handler-field-group" data-handler-fields="mcp_tool" hidden>
+                <div class="control-grid">
+                  <div class="field-group"><label class="field-label" for="server-input">server</label><input class="text-control" id="server-input" data-handler-field="server" type="text" spellcheck="false" placeholder="your_mcp_server"></div>
+                  <div class="field-group"><label class="field-label" for="tool-input">tool</label><input class="text-control" id="tool-input" data-handler-field="tool" type="text" spellcheck="false" placeholder="your_tool"></div>
+                </div>
+                <div class="field-group" style="margin-top:14px"><label class="field-label" for="mcp-input">input，可留空，必須是 JSON 物件</label><textarea class="text-control" id="mcp-input" data-handler-field="input" spellcheck="false">{}</textarea></div>
+                <p class="field-warning">MCP server 必須已連線。SessionStart 很早觸發，第一次執行時 server 可能尚未完成連線。</p>
+              </div>
+              <div class="handler-field-group" data-handler-fields="prompt" hidden>
+                <label class="field-label" for="prompt-input">prompt</label><textarea class="text-control" id="prompt-input" data-handler-field="prompt" spellcheck="false"></textarea>
+                <p class="field-warning">Prompt Hook 的判斷由模型完成。`$ARGUMENTS` 可插入事件 JSON；沒有放入時，Claude Code 會附加輸入資料。</p>
+              </div>
+                <div class="handler-field-group" data-handler-fields="agent" hidden>
+                <div class="control-grid">
+                  <div class="field-group"><label class="field-label" for="agent-prompt-input">prompt</label><textarea class="text-control" id="agent-prompt-input" data-handler-field="prompt" spellcheck="false"></textarea></div>
+                  <div class="field-group"><label class="field-label" for="agent-timeout-input">timeout，秒，可留空</label><input class="text-control" id="agent-timeout-input" data-handler-field="timeout" type="number" min="1" step="1" inputmode="numeric"></div>
+                </div>
+                <p class="field-warning">`agent` 是實驗性功能。它能用工具檢查檔案與測試結果，但正式防呆流程仍優先採用可測試的 `command`。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="output-shell diagram-target" id="result-control" data-config-target>
+              <div class="output-head"><h3>目前產生的設定 JSON</h3><button class="copy-button" id="copy-config" type="button" aria-label="複製目前設定 JSON">複製 JSON</button></div>
+              <pre class="config-box"><code id="config-output"></code></pre>
+              <p class="sr-only" id="config-status" aria-live="polite"></p>
+              <p class="config-error" id="config-error" role="alert"></p>
+              <p class="plain-note">這段 JSON 只定義「何時呼叫哪一種 handler」。它不會替你建立指令碼、不會檢查秘密，也不會在這台電腦上安裝任何規則。Handler 是教學上的名稱；正式 JSON 會將它寫入內層 `hooks` 陣列，並以 `type` 表示。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-band" id="handler-section" aria-labelledby="handler-title">
+          <p class="section-tag">REFERENCE / HANDLER FIELDS</p>
+          <h2 id="handler-title">每一種 handler 都有自己的必要欄位。</h2>
+          <p class="section-copy">Hook 的觸發時機是固定的，但 handler 的工作方式不同。不要把 `command` 複製到所有類型，也不要假設每個 Event 都支援全部類型。</p>
+          <div class="handler-reference">
+            <article class="handler-reference-item"><strong>command</strong><p>使用 `command`。可加 `args` 或 `shell`。適合可測試、可重複執行的規則。</p></article>
+            <article class="handler-reference-item"><strong>http</strong><p>使用 `url`。事件 JSON 會以 POST 傳送。需先確認 allowlist 與安全邊界。</p></article>
+            <article class="handler-reference-item"><strong>mcp_tool</strong><p>使用 `server`、`tool`，可加 `input`。server 必須已連線。</p></article>
+            <article class="handler-reference-item"><strong>prompt</strong><p>使用 `prompt`。觸發是固定的，判斷仍由模型完成。</p></article>
+            <article class="handler-reference-item"><strong>agent</strong><p>使用 `prompt`，可加 `timeout`。功能為實驗性，適合需要讀檔或跑測試的驗證。</p></article>
+          </div>
+        </section>
+
+        <section class="section-band diagram-panel" id="safety-section" data-diagram="safety" aria-labelledby="safety-title">
+          <header>
+            <p class="section-tag">CONCEPT MAP / SAFETY GATE</p>
+            <h2 id="safety-title">安全規則要能說清楚「過」或「不過」。</h2>
+            <p class="section-copy">最適合做成 Hook 的防呆，通常有一個可測試的條件。下面是提交前敏感資料檢查的安全分流示意。</p>
+          </header>
+          <div class="safety-layout">
+            <div class="safety-branch">
+              <div class="diagram-flow safety-flow">
+                <button class="diagram-node" type="button" data-diagram-node="safety-check" aria-pressed="false"><small>CHECK</small><strong>檢查本次提交</strong><span>只看要進入版本控制的差異。</span></button>
+                <span class="diagram-edge" aria-hidden="true">→</span>
+                <button class="diagram-node" type="button" data-diagram-node="safety-route" aria-pressed="false"><small>ROUTE</small><strong>依結果分流</strong><span>命中敏感規則就 Block；沒有問題才 Allow。</span></button>
+              </div>
+              <p class="simulation-note">這裡只展示決策方式。正式的防護腳本仍需要你在本機建立、測試並納入對應設定。</p>
+              <div class="simulation-actions" role="group" aria-label="安全分流模擬">
+                <button class="simulation-button" type="button" data-simulation="block" aria-pressed="false"><strong>BLOCK</strong><span>模擬發現 `.env` 或私鑰</span></button>
+                <button class="simulation-button" type="button" data-simulation="allow" aria-pressed="false"><strong>ALLOW</strong><span>模擬未發現敏感資料</span></button>
+              </div>
+            </div>
+            <div class="simulation-result" id="simulation-result" data-mode="idle" aria-live="polite">
+              <small>SIMULATION OUTPUT</small>
+              <strong id="simulation-result-title">等待選擇結果</strong>
+              <p id="simulation-result-copy">選擇 Block 或 Allow，查看 Hook 會回報什麼。此頁不讀取專案、不掃描檔案，也不執行提交。</p>
+            </div>
+          </div>
+          <p class="simulation-note">模擬結果，不代表已在電腦上安裝或驗證任何 Hook。</p>
+        </section>
+
+        <section class="section-band diagram-panel" id="verification-section" data-diagram="verification" aria-labelledby="verification-title">
+          <header>
+            <p class="section-tag">CONCEPT MAP / VERIFICATION LOOP</p>
+            <h2 id="verification-title">規則寫完，還要走過一次驗證迴圈。</h2>
+            <p class="section-copy">不要直接相信設定檔看起來合理。從低風險範例開始，確認 Hook 被載入、條件有命中、放行與攔截都符合預期，再擴大範圍。</p>
+          </header>
+          <div class="verification-loop" role="group" aria-label="Hook 驗證迴圈" aria-describedby="verification-detail">
+            <button class="diagram-node" type="button" data-diagram-node="verify-config" aria-pressed="false"><span class="loop-sequence">01 / CONFIG</span><strong>檢查設定位置</strong><span>確認 JSON 放在正確範圍，並重新啟動或載入設定。</span></button>
+            <button class="diagram-node" type="button" data-diagram-node="verify-trigger" aria-pressed="false"><span class="loop-sequence">02 / TRIGGER</span><strong>用小案例觸發</strong><span>先以一個可回復的操作確認 matcher 是否真的命中。</span></button>
+            <button class="diagram-node" type="button" data-diagram-node="verify-result" aria-pressed="false"><span class="loop-sequence">03 / RESULT</span><strong>同時驗證 Block 與 Allow</strong><span>兩條分支都要跑，避免只測到攔截或只測到放行。</span></button>
+            <button class="diagram-node" type="button" data-diagram-node="verify-observe" aria-pressed="false"><span class="loop-sequence">04 / OBSERVE</span><strong>留痕並調整</strong><span>用內建檢視與除錯資訊找出 matcher、腳本或環境問題。</span></button>
+          </div>
+          <p class="diagram-detail" id="verification-detail" aria-live="polite"><strong>檢查設定位置：</strong> 用 `/hooks` 確認設定已被載入。常見錯誤是把檔案放在不符合預期範圍的位置。</p>
+          <ol class="verification-steps" aria-label="Hook 手動驗收步驟">
+            <li><span class="verification-index">01</span><div class="verification-check-row"><input id="verification-config" type="checkbox" data-verification-check="config" aria-labelledby="verification-config-title" aria-describedby="verification-config-copy"><label class="verification-check-label" for="verification-config"><span class="verification-check-title" id="verification-config-title" role="heading" aria-level="3">先確認 Claude Code 有讀到設定。</span><span class="verification-check-copy" id="verification-config-copy">在 Claude Code 輸入 <code class="command-chip">/hooks</code>，確認 Event、matcher 與 handler 顯示為你預期的內容。這一步只看設定是否被載入。</span></label></div></li>
+            <li><span class="verification-index">02</span><div class="verification-check-row"><input id="verification-trigger" type="checkbox" data-verification-check="trigger" aria-labelledby="verification-trigger-title" aria-describedby="verification-trigger-copy"><label class="verification-check-label" for="verification-trigger"><span class="verification-check-title" id="verification-trigger-title" role="heading" aria-level="3">用最小案例測觸發條件。</span><span class="verification-check-copy" id="verification-trigger-copy">例如只針對 <code class="command-chip">Bash</code> 或 <code class="command-chip">Edit|Write</code> 做可回復測試。若沒有命中，先檢查 Event 與 matcher 的大小寫。</span></label></div></li>
+            <li><span class="verification-index">03</span><div class="verification-check-row"><input id="verification-result" type="checkbox" data-verification-check="result" aria-labelledby="verification-result-title" aria-describedby="verification-result-copy"><label class="verification-check-label" for="verification-result"><span class="verification-check-title" id="verification-result-title" role="heading" aria-level="3">把兩條路都走一次。</span><span class="verification-check-copy" id="verification-result-copy">刻意建立一個應該被阻擋的案例，再建立一個應該放行的案例。防呆規則只測其中一邊，等於還沒測完。</span></label></div></li>
+            <li><span class="verification-index">04</span><div class="verification-check-row"><input id="verification-observe" type="checkbox" data-verification-check="observe" aria-labelledby="verification-observe-title" aria-describedby="verification-observe-copy"><label class="verification-check-label" for="verification-observe"><span class="verification-check-title" id="verification-observe-title" role="heading" aria-level="3">從內建工具找問題，不要亂改設定。</span><span class="verification-check-copy" id="verification-observe-copy">先用 <code class="command-chip">/doctor</code> 檢查環境；需要看到 Hook 細節時，再以 <code class="command-chip">claude --debug hooks</code> 啟動。每次只修正一個明確原因。</span></label></div></li>
+          </ol>
+          <p class="verification-progress" id="verification-progress" aria-live="polite">本頁驗收清單：0 / 4 已勾選。重新整理後會清空。</p>
+          <p class="stop-guard"><strong>Stop Hook 的界線：</strong>先定義可驗證的放行條件，例如測試通過或檢查清單完成。若連續幾次都無法通過，應回報未完成項目與檢查輸出，交由人決定下一步；不要讓阻擋機制變成無限循環。</p>
+        </section>
+
+        <section class="section-band" aria-labelledby="compatibility-title">
+          <p class="section-tag">BOUNDARY / PORTABILITY</p>
+          <h2 id="compatibility-title">不要把格式相像，當成機制相同。</h2>
+          <p class="compatibility-note">這份設定器只產生 Claude Code 範例。Cursor 與 Codex 的 Hook 機制、設定位置與事件名稱可能不同，不要直接複製 Claude Code 的設定。先依你正在使用的版本查官方文件，再建立實際規則。</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p>離線版本。所有互動只在目前頁面發生，重新整理後回到初始範例。你也可以回到<a href="/insights/claude-code-hooks-field-manual/">這篇學習歷程</a>查看脈絡與更新記錄。下列連結只會在你主動點選時開啟官方文件。</p>
+      <ul class="source-list" aria-label="Claude Code 官方參考資料">
+        <li><a href="https://code.claude.com/docs/en/hooks-guide" target="_blank" rel="noreferrer">Hooks Guide</a></li>
+        <li><a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noreferrer">Hooks Reference</a></li>
+        <li><a href="https://code.claude.com/docs/en/debug-your-config" target="_blank" rel="noreferrer">Debug your configuration</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div id="manual-status" aria-live="polite"></div>
+
+  <script id="hook-template-data" type="application/json">[
+    {
+      "id": "secret-guard",
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "handler": "command",
+      "allowedHandlers": ["command", "http", "mcp_tool", "prompt", "agent"],
+      "handlerDefaults": {
+        "command": {"command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/git-commit-secret-guard.mjs"]},
+        "http": {"url": "https://example.invalid/hooks/pre-tool-use"},
+        "mcp_tool": {"server": "your_mcp_server", "tool": "your_tool", "input": {}},
+        "prompt": {"prompt": "Evaluate the requested Bash action. $ARGUMENTS"},
+        "agent": {"prompt": "Inspect the requested Bash action and report whether it is safe. $ARGUMENTS", "timeout": 60}
+      },
+      "title": "Git 提交敏感資料防護",
+      "summary": "在 Bash 指令執行前攔截敏感資料。"
+    },
+    {
+      "id": "format-after-edit",
+      "event": "PostToolUse",
+      "matcher": "Edit|Write",
+      "handler": "command",
+      "allowedHandlers": ["command", "http", "mcp_tool", "prompt", "agent"],
+      "handlerDefaults": {
+        "command": {"command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/format-after-edit.mjs"]},
+        "http": {"url": "https://example.invalid/hooks/post-tool-use"},
+        "mcp_tool": {"server": "your_mcp_server", "tool": "format_file", "input": {"file_path": "${tool_input.file_path}"}},
+        "prompt": {"prompt": "Check the edited file against the required style. $ARGUMENTS"},
+        "agent": {"prompt": "Inspect the edited file and verify the required style. $ARGUMENTS", "timeout": 60}
+      },
+      "title": "儲存後格式化",
+      "summary": "在 Edit 或 Write 後格式化檔案。"
+    },
+    {
+      "id": "stop-check",
+      "event": "Stop",
+      "matcher": "",
+      "handler": "command",
+      "allowedHandlers": ["command", "http", "mcp_tool", "prompt", "agent"],
+      "handlerDefaults": {
+        "command": {"command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-check.mjs"]},
+        "http": {"url": "https://example.invalid/hooks/stop"},
+        "mcp_tool": {"server": "your_mcp_server", "tool": "verify_completion", "input": {}},
+        "prompt": {"prompt": "Evaluate whether all tasks are complete. $ARGUMENTS"},
+        "agent": {"prompt": "Run the relevant checks and verify whether all tasks are complete. $ARGUMENTS", "timeout": 60}
+      },
+      "title": "工作結束驗收",
+      "summary": "在結束前檢查可驗證的完成條件。"
+    },
+    {
+      "id": "session-context",
+      "event": "SessionStart",
+      "matcher": "startup",
+      "handler": "command",
+      "allowedHandlers": ["command", "mcp_tool"],
+      "handlerDefaults": {
+        "command": {"command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/session-context.mjs"]},
+        "mcp_tool": {"server": "your_mcp_server", "tool": "load_context", "input": {}}
+      },
+      "title": "開始工作時補充脈絡",
+      "summary": "在新工作階段快速補充必要背景。"
+    }
+  ]</script>
+
+  <script>
+    const templates = JSON.parse(document.getElementById('hook-template-data').textContent)
+    const eventMeta = {
+      PreToolUse: { matcher: 'Bash', supportsMatcher: true, allowedHandlers: ['command', 'http', 'mcp_tool', 'prompt', 'agent'] },
+      PostToolUse: { matcher: 'Edit|Write', supportsMatcher: true, allowedHandlers: ['command', 'http', 'mcp_tool', 'prompt', 'agent'] },
+      Stop: { matcher: '', supportsMatcher: false, allowedHandlers: ['command', 'http', 'mcp_tool', 'prompt', 'agent'] },
+      SessionStart: { matcher: 'startup', supportsMatcher: true, allowedHandlers: ['command', 'mcp_tool'] }
+    }
+    const scopeMeta = {
+      global: { text: '~/.claude/settings.json：適合所有個人專案，不應提交到版本控制。' },
+      project: { text: '.claude/settings.json：適合團隊共同維護的 Hook，可提交到版本控制。' },
+      local: { text: '.claude/settings.local.json：只留在本機，適合個人路徑與不可共享的設定。' }
+    }
+    const handlerMeta = {
+      command: { title: 'command 必填欄位', help: '使用可重複執行的指令碼。Hook 事件 JSON 會透過 stdin 傳入。' },
+      http: { title: 'http 必填欄位', help: 'HTTP Hook 會把事件資料 POST 到指定 URL。' },
+      mcp_tool: { title: 'mcp_tool 必填欄位', help: '指定已連線的 MCP server 與要呼叫的 tool。' },
+      prompt: { title: 'prompt 必填欄位', help: '以單次模型推理決定是否放行或阻擋。' },
+      agent: { title: 'agent 必填欄位', help: '以可使用工具的 subagent 驗證條件。此類型為實驗性功能。' }
+    }
+    const diagramDetails = {
+      'decision-once': '一次性的任務：只在目前對話有用，就直接說清楚。把短期需求寫成長期規則，之後反而會造成干擾。',
+      'decision-guidance': 'CLAUDE.md：適合放背景、慣例與建置方式。模型會參考它，但它不是軟體強制執行的關卡。',
+      'decision-hook': 'Hook：當一個動作必須在固定時機執行，而且不能靠模型自己記得，就適合做成 Hook。',
+      'scope-global': 'Global：放在 ~/.claude/settings.json。只要是你個人所有專案都需要的規則，才適合放這裡。',
+      'scope-project': 'Project：放在 .claude/settings.json。團隊共同需要的檢查，才應該提交到這個設定檔。',
+      'scope-local': 'Local：放在 .claude/settings.local.json。含個人路徑、個人憑證或不該分享的設定，就留在本機。',
+      'lifecycle-event': 'Event 決定 Hook 什麼時候出現。先選對時間點，再談後面的條件與動作。',
+      'lifecycle-matcher': 'Matcher 縮小攔截範圍。它是單一、大小寫敏感的字串；Bash 與 bash 不是同一件事。',
+      'lifecycle-handler': 'Handler 才是實際工作者。不同類型的必要欄位不同，不能把 command 的格式套到 http 或 MCP。',
+      'lifecycle-result': 'Result 要能被檢查。安全規則至少要能說清楚什麼情況放行、什麼情況阻擋，以及誰接手處理。',
+      'safety-check': '先把檢查對象限縮在本次要提交的內容。規則越清楚，越適合由 command 類型的 Hook 執行。',
+      'safety-route': '分流的重點不是把所有情況攔住，而是讓問題出現時能停止、說明原因，修正後也能正常放行。',
+      'verify-config': '先確認設定檔位置和 JSON 結構。這一步沒過，後面的測試不會有可信的結果。',
+      'verify-trigger': '用小而可回復的案例觸發 Hook，先確認 Event 與 matcher 的組合真的被命中。',
+      'verify-result': 'Block 與 Allow 都要測。只測一條分支，常常會把另一條路徑的錯誤留到正式工作時才發現。',
+      'verify-observe': '保留可追查的輸出，從內建檢視與除錯資訊找到問題，再縮小修正範圍。'
+    }
+    const lifecycleTargetMap = {
+      'lifecycle-event': 'event-control',
+      'lifecycle-matcher': 'matcher-control',
+      'lifecycle-handler': 'handler-control',
+      'lifecycle-result': 'result-control'
+    }
+    const decisionNextSteps = {
+      'decision-once': { copy: '下一步：直接在目前對話說清楚目標、限制與完成條件，處理完就結束。', action: '這個情況不需要建立 Hook。', target: '' },
+      'decision-guidance': { copy: '下一步：把長期要參考的背景與慣例整理到 `CLAUDE.md`，但不要把它當成強制關卡。', action: '這個情況適合更新 CLAUDE.md。', target: '' },
+      'decision-hook': { copy: '下一步：先選擇這條規則的設定範圍，再從情境模板開始調整。', action: '前往選擇設定範圍', target: 'scope-section' }
+    }
+    const verificationDetails = {
+      'verify-config': '檢查設定位置：用 `/hooks` 確認 Event、matcher 與 handler 已被載入。常見錯誤是把檔案放在不符合預期範圍的位置。',
+      'verify-trigger': '用小案例觸發：從可回復的 Bash 或 Edit／Write 操作開始。常見錯誤是 Event 選錯，或 matcher 的大小寫不吻合。',
+      'verify-result': '驗證結果分支：刻意各跑一次 Block 與 Allow。常見錯誤是只測其中一條路，讓另一條錯誤留到正式工作才出現。',
+      'verify-observe': '留痕並調整：先用 `/doctor` 檢查環境，需要細節時再用 `claude --debug hooks`。常見錯誤是同時改太多項，無法判斷原因。'
+    }
+    const state = { templateId: 'secret-guard', scope: 'project', event: 'PreToolUse', matcher: 'Bash', handler: 'command', activeDiagramNode: 'decision-hook' }
+    const elements = {
+      templateButtons: [...document.querySelectorAll('[data-template-id]')],
+      scopeButtons: [...document.querySelectorAll('[data-scope]')],
+      stepButtons: [...document.querySelectorAll('[data-step-target]')],
+      diagramNodes: [...document.querySelectorAll('[data-diagram-node]')],
+      diagramDetail: document.getElementById('diagram-detail'),
+      lifecycleDetail: document.getElementById('lifecycle-detail'),
+      verificationDetail: document.getElementById('verification-detail'),
+      decisionNextCopy: document.getElementById('decision-next-copy'),
+      decisionNextStep: document.getElementById('decision-next-step'),
+      simulationButtons: [...document.querySelectorAll('[data-simulation]')],
+      simulationResult: document.getElementById('simulation-result'),
+      simulationResultTitle: document.getElementById('simulation-result-title'),
+      simulationResultCopy: document.getElementById('simulation-result-copy'),
+      templateSummary: document.getElementById('template-summary'),
+      scopeReadout: document.getElementById('scope-readout'),
+      eventPicker: document.getElementById('event-picker'),
+      handlerPicker: document.getElementById('handler-picker'),
+      matcherInput: document.getElementById('matcher-input'),
+      matcherInputRow: document.getElementById('matcher-input-row'),
+      matcherUnavailable: document.getElementById('matcher-unavailable'),
+      configTargets: [...document.querySelectorAll('[data-config-target]')],
+      handlerFieldsTitle: document.getElementById('handler-fields-title'),
+      handlerFieldsHelp: document.getElementById('handler-fields-help'),
+      handlerFieldGroups: [...document.querySelectorAll('[data-handler-fields]')],
+      commandInput: document.getElementById('command-input'),
+      argsInput: document.getElementById('args-input'),
+      urlInput: document.getElementById('url-input'),
+      serverInput: document.getElementById('server-input'),
+      toolInput: document.getElementById('tool-input'),
+      mcpInput: document.getElementById('mcp-input'),
+      promptInput: document.getElementById('prompt-input'),
+      agentPromptInput: document.getElementById('agent-prompt-input'),
+      agentTimeoutInput: document.getElementById('agent-timeout-input'),
+      configOutput: document.getElementById('config-output'),
+      configStatus: document.getElementById('config-status'),
+      configError: document.getElementById('config-error'),
+      copyButton: document.getElementById('copy-config'),
+      verificationChecks: [...document.querySelectorAll('[data-verification-check]')],
+      verificationProgress: document.getElementById('verification-progress'),
+      status: document.getElementById('manual-status')
+    }
+
+    function currentTemplate() { return templates.find((template) => template.id === state.templateId) }
+    function clone(value) { return JSON.parse(JSON.stringify(value)) }
+    function setStatus(message) { elements.status.textContent = message }
+    function preferredScrollBehavior() {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+    }
+    function renderLifecycleTarget(nodeId) {
+      elements.configTargets.forEach((target) => target.classList.remove('is-diagram-highlighted'))
+      const targetId = lifecycleTargetMap[nodeId]
+      if (!targetId) return
+      const target = document.getElementById(targetId)
+      if (target) target.classList.add('is-diagram-highlighted')
+      elements.lifecycleDetail.textContent = diagramDetails[nodeId]
+    }
+    function renderDecisionNextStep(nodeId) {
+      const nextStep = decisionNextSteps[nodeId]
+      if (!nextStep) return
+      elements.decisionNextCopy.textContent = nextStep.copy
+      elements.decisionNextStep.textContent = nextStep.action
+      elements.decisionNextStep.dataset.nextTarget = nextStep.target
+      elements.decisionNextStep.disabled = !nextStep.target
+    }
+    function renderVerificationDetail(nodeId) {
+      const detail = verificationDetails[nodeId]
+      if (detail) elements.verificationDetail.textContent = detail
+    }
+    function renderVerificationProgress() {
+      const completed = elements.verificationChecks.filter((input) => input.checked).length
+      elements.verificationProgress.textContent = `本頁驗收清單：${completed} / ${elements.verificationChecks.length} 已勾選。重新整理後會清空。`
+    }
+    function setDiagramDetail(node) {
+      const detail = diagramDetails[node.dataset.diagramNode]
+      if (!detail) return
+      state.activeDiagramNode = node.dataset.diagramNode
+      elements.diagramDetail.textContent = detail
+      elements.diagramNodes.forEach((item) => {
+        if (!item.dataset.scope) item.setAttribute('aria-pressed', String(item === node))
+      })
+      if (node.dataset.scope) renderScope()
+      renderLifecycleTarget(node.dataset.diagramNode)
+      renderDecisionNextStep(node.dataset.diagramNode)
+      renderVerificationDetail(node.dataset.diagramNode)
+      setStatus(`概念圖焦點：${node.textContent.trim().replace(/\s+/g, ' ')}。`)
+    }
+
+    function setSimulation(mode) {
+      const blocked = mode === 'block'
+      elements.simulationResult.dataset.mode = mode
+      elements.simulationResultTitle.textContent = blocked ? 'BLOCK：停止提交流程' : 'ALLOW：保留正常流程'
+      elements.simulationResultCopy.textContent = blocked
+        ? '模擬結果：發現 `.env` 或私鑰，Hook 應回報問題檔案並阻止這次提交。修正後再重新測試。'
+        : '模擬結果：未發現敏感資料，Hook 應記錄通過結果，讓原本的提交流程繼續。'
+      elements.simulationButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.simulation === mode)))
+      setStatus(`安全分流模擬：${blocked ? 'Block' : 'Allow'}。`)
+    }
+
+    function clearHandlerInputs() {
+      elements.commandInput.value = ''
+      elements.argsInput.value = ''
+      elements.urlInput.value = ''
+      elements.serverInput.value = ''
+      elements.toolInput.value = ''
+      elements.mcpInput.value = '{}'
+      elements.promptInput.value = ''
+      elements.agentPromptInput.value = ''
+      elements.agentTimeoutInput.value = ''
+    }
+
+    function applyHandlerDefaults(template, handler) {
+      const defaults = clone(template.handlerDefaults[handler] || {})
+      clearHandlerInputs()
+      if (handler === 'command') {
+        elements.commandInput.value = defaults.command || ''
+        elements.argsInput.value = (defaults.args || []).join('\n')
+      }
+      if (handler === 'http') elements.urlInput.value = defaults.url || ''
+      if (handler === 'mcp_tool') {
+        elements.serverInput.value = defaults.server || ''
+        elements.toolInput.value = defaults.tool || ''
+        elements.mcpInput.value = JSON.stringify(defaults.input || {}, null, 2)
+      }
+      if (handler === 'prompt') elements.promptInput.value = defaults.prompt || ''
+      if (handler === 'agent') {
+        elements.agentPromptInput.value = defaults.prompt || ''
+        elements.agentTimeoutInput.value = defaults.timeout || ''
+      }
+    }
+
+    function renderScope() {
+      elements.scopeButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.scope === state.scope)))
+      elements.scopeReadout.textContent = scopeMeta[state.scope].text
+    }
+
+    function renderTemplateButtons() {
+      elements.templateButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.templateId === state.templateId)))
+    }
+
+    function availableHandlers() {
+      return eventMeta[state.event].allowedHandlers.filter((handler) => currentTemplate().allowedHandlers.includes(handler))
+    }
+
+    function renderHandlerPicker() {
+      const allowed = availableHandlers()
+      if (!allowed.includes(state.handler)) state.handler = allowed[0]
+      elements.handlerPicker.replaceChildren()
+      allowed.forEach((handler) => {
+        const option = document.createElement('option')
+        option.value = handler
+        option.textContent = handler
+        elements.handlerPicker.append(option)
+      })
+      elements.handlerPicker.value = state.handler
+    }
+
+    function renderHandlerFields() {
+      const meta = handlerMeta[state.handler]
+      elements.handlerFieldsTitle.textContent = meta.title
+      elements.handlerFieldsHelp.textContent = meta.help
+      elements.handlerFieldGroups.forEach((group) => { group.hidden = group.dataset.handlerFields !== state.handler })
+    }
+
+    function renderMatcherControl() {
+      const supportsMatcher = eventMeta[state.event].supportsMatcher
+      elements.matcherInputRow.hidden = !supportsMatcher
+      elements.matcherUnavailable.hidden = supportsMatcher
+      elements.matcherInput.disabled = !supportsMatcher
+      if (!supportsMatcher) elements.matcherInput.value = ''
+    }
+
+    function renderTemplate() {
+      const template = currentTemplate()
+      elements.templateSummary.textContent = template.summary
+      elements.eventPicker.value = state.event
+      elements.matcherInput.value = state.matcher
+      renderTemplateButtons()
+      renderHandlerPicker()
+      renderMatcherControl()
+      renderHandlerFields()
+      renderConfig()
+    }
+
+    function parseJsonObject(value, fieldName) {
+      if (!value.trim()) return {}
+      let parsed
+      try { parsed = JSON.parse(value) } catch { throw new Error(`${fieldName} 必須是合法 JSON 物件。`) }
+      if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') throw new Error(`${fieldName} 必須是 JSON 物件。`)
+      return parsed
+    }
+
+    function buildHookHandler(handler, fields) {
+      switch (handler) {
+        case 'command': {
+          const command = fields.command.trim()
+          if (!command) throw new Error('command 不可留空。')
+          const args = fields.args.split('\n').map((item) => item.trim()).filter(Boolean)
+          return { type: 'command', command, ...(args.length ? { args } : {}) }
+        }
+        case 'http': {
+          const url = fields.url.trim()
+          if (!url) throw new Error('http handler 需要 url。')
+          try {
+            const parsedUrl = new URL(url)
+            if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('unsupported protocol')
+          } catch { throw new Error('url 必須是完整的 http 或 https URL。') }
+          return { type: 'http', url }
+        }
+        case 'mcp_tool': {
+          const server = fields.server.trim()
+          const tool = fields.tool.trim()
+          if (!server || !tool) throw new Error('mcp_tool 需要 server 與 tool。')
+          const input = parseJsonObject(fields.input, 'input')
+          return { type: 'mcp_tool', server, tool, ...(Object.keys(input).length ? { input } : {}) }
+        }
+        case 'prompt': {
+          const prompt = fields.prompt.trim()
+          if (!prompt) throw new Error('prompt handler 需要 prompt。')
+          return { type: 'prompt', prompt }
+        }
+        case 'agent': {
+          const prompt = fields.prompt.trim()
+          if (!prompt) throw new Error('agent handler 需要 prompt。')
+          const timeout = fields.timeout.trim()
+          if (timeout && (!Number.isInteger(Number(timeout)) || Number(timeout) < 1)) throw new Error('agent timeout 必須是大於 0 的整數秒數。')
+          return { type: 'agent', prompt, ...(timeout ? { timeout: Number(timeout) } : {}) }
+        }
+        default: throw new Error(`不支援的 handler：${handler}`)
+      }
+    }
+
+    function readHandlerFields() {
+      if (state.handler === 'command') return { command: elements.commandInput.value, args: elements.argsInput.value }
+      if (state.handler === 'http') return { url: elements.urlInput.value }
+      if (state.handler === 'mcp_tool') return { server: elements.serverInput.value, tool: elements.toolInput.value, input: elements.mcpInput.value }
+      if (state.handler === 'prompt') return { prompt: elements.promptInput.value }
+      return { prompt: elements.agentPromptInput.value, timeout: elements.agentTimeoutInput.value }
+    }
+
+    function buildHookConfig(template, handler, fields) {
+      const matcher = eventMeta[state.event].supportsMatcher ? state.matcher.trim() : ''
+      return {
+        hooks: {
+          [state.event]: [{ ...(matcher ? { matcher } : {}), hooks: [buildHookHandler(handler, fields)] }]
+        }
+      }
+    }
+
+    function renderConfig() {
+      try {
+        const config = buildHookConfig(currentTemplate(), state.handler, readHandlerFields())
+        elements.configOutput.textContent = JSON.stringify(config, null, 2)
+        elements.configError.textContent = ''
+        elements.copyButton.disabled = false
+        elements.configStatus.textContent = `設定 JSON 已更新：${state.event}、${state.handler}。`
+      } catch (error) {
+        elements.configOutput.textContent = '// 請補齊目前 handler 的必要欄位。'
+        elements.configError.textContent = error.message
+        elements.copyButton.disabled = true
+        elements.configStatus.textContent = `設定 JSON 尚未產生：${error.message}`
+      }
+    }
+
+    async function copyConfig() {
+      const json = elements.configOutput.textContent
+      if (elements.copyButton.disabled) return
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('clipboard unavailable')
+        await navigator.clipboard.writeText(json)
+        setStatus('已複製設定 JSON。')
+      } catch {
+        const selection = window.getSelection()
+        const range = document.createRange()
+        range.selectNodeContents(elements.configOutput)
+        selection.removeAllRanges()
+        selection.addRange(range)
+        setStatus('瀏覽器未允許自動複製，已選取 JSON，請使用 Ctrl + C。')
+      }
+    }
+
+    function selectTemplate(templateId) {
+      const template = templates.find((item) => item.id === templateId)
+      if (!template) return
+      state.templateId = template.id
+      state.event = template.event
+      state.matcher = template.matcher
+      state.handler = template.handler
+      applyHandlerDefaults(template, state.handler)
+      renderTemplate()
+      setStatus(`已選擇：${template.title}。`)
+    }
+
+    function selectHandler(handler) {
+      if (!availableHandlers().includes(handler)) return
+      state.handler = handler
+      applyHandlerDefaults(currentTemplate(), handler)
+      renderHandlerPicker()
+      renderHandlerFields()
+      renderConfig()
+      setStatus(`目前 handler：${handler}。`)
+    }
+
+    elements.templateButtons.forEach((button) => button.addEventListener('click', () => selectTemplate(button.dataset.templateId)))
+    elements.scopeButtons.forEach((button) => button.addEventListener('click', () => {
+      state.scope = button.dataset.scope
+      renderScope()
+      setStatus(`已選擇 ${button.textContent.trim().split('\n')[0]} 設定範圍。`)
+    }))
+    elements.eventPicker.addEventListener('change', () => {
+      state.event = elements.eventPicker.value
+      state.matcher = eventMeta[state.event].matcher
+      if (!availableHandlers().includes(state.handler)) state.handler = availableHandlers()[0]
+      applyHandlerDefaults(currentTemplate(), state.handler)
+      renderTemplate()
+      setStatus(`目前 Event：${state.event}。`)
+    })
+    elements.handlerPicker.addEventListener('change', () => selectHandler(elements.handlerPicker.value))
+    elements.matcherInput.addEventListener('input', () => { state.matcher = elements.matcherInput.value; renderConfig() })
+    const handlerInputControls = [elements.commandInput, elements.argsInput, elements.urlInput, elements.serverInput, elements.toolInput, elements.mcpInput, elements.promptInput, elements.agentPromptInput, elements.agentTimeoutInput].filter(Boolean)
+    handlerInputControls.forEach((control) => control.addEventListener('input', renderConfig))
+    elements.copyButton.addEventListener('click', copyConfig)
+    elements.decisionNextStep.addEventListener('click', () => {
+      const target = document.getElementById(elements.decisionNextStep.dataset.nextTarget)
+      if (!target) return
+      target.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' })
+      setStatus('已前往下一步：選擇設定範圍。')
+    })
+    elements.stepButtons.forEach((button) => button.addEventListener('click', () => {
+      const target = document.getElementById(button.dataset.stepTarget)
+      if (target) target.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' })
+      elements.stepButtons.forEach((item) => item.removeAttribute('aria-current'))
+      button.setAttribute('aria-current', 'step')
+    }))
+    elements.diagramNodes.forEach((button) => button.addEventListener('click', () => setDiagramDetail(button)))
+    elements.simulationButtons.forEach((button) => button.addEventListener('click', () => setSimulation(button.dataset.simulation)))
+    elements.verificationChecks.forEach((input) => input.addEventListener('change', () => {
+      renderVerificationProgress()
+      setStatus(`驗收清單已更新：${input.checked ? '完成' : '取消'} ${input.dataset.verificationCheck}。`)
+    }))
+
+    renderScope()
+    renderDecisionNextStep(state.activeDiagramNode)
+    renderVerificationDetail('verify-config')
+    renderVerificationProgress()
+    selectTemplate(state.templateId)
+  </script>
+</body>
+</html>

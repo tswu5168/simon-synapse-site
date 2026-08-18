@@ -12,6 +12,7 @@ const REQUIRED_OUTPUTS = [
   "kakeya/interactive/index.html",
   "kakeya/immersive/index.html",
   "kakeya/learn/index.html",
+  "learning/claude-code-hooks/index.html",
   "projects/kakeya-3d-lab/index.html",
 ];
 const ROUTES_WITHOUT_ADS = new Set([
