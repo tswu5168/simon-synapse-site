@@ -9,6 +9,7 @@ const publishedProjectSlugs = [
 ];
 const previewOnlyProjectSlugs = ["exam-roadmap"];
 const publishedInsightSlugs = [
+  "graph-engineering",
   "claude-code-hooks-field-manual",
   "privacy-first-local-video-compression",
   "honest-prediction-models",
@@ -95,6 +96,36 @@ test("home displays the five approved core projects in order", async ({
       exact: true,
     }),
   ).toHaveAttribute("href", "https://simonsynapse.net/kakeya/interactive");
+});
+
+test("graph engineering insight is featured and preserves its source trail", async ({
+  page,
+}) => {
+  const title = "別再把代理排成一列：圖工程如何讓 AI 工作系統不失控";
+
+  await page.goto("/");
+  const featured = page.locator('section[aria-labelledby="featured-heading"]');
+  await expect(
+    featured.getByRole("heading", { name: title, exact: true }),
+  ).toBeVisible();
+  const articleLink = featured.getByRole("link", {
+    name: `閱讀：${title}`,
+    exact: true,
+  });
+  await expect(articleLink).toHaveAttribute("href", "/insights/graph-engineering");
+  await Promise.all([
+    page.waitForURL("**/insights/graph-engineering"),
+    articleLink.click(),
+  ]);
+  await expect(
+    page.getByRole("heading", { name: title, exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "rari｜Graph Engineering: How to Build AI Agent Systems That Don't Break at Scale （另開新視窗）",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "https://x.com/0xwhrrari/status/2086784668003598356");
 });
 
 test("content index routes are available", async ({ page }) => {
