@@ -12,17 +12,18 @@ interface Props {
   image?: string;
   jsonLd?: Record<string, unknown>;
   loadAds?: boolean;
+  bodyClass?: string;
 }
 
-const props = Astro.props;
+const { bodyClass, ...headProps } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="zh-Hant-TW">
   <head>
-    <SiteHead {...props} />
+    <SiteHead {...headProps} />
   </head>
-  <body>
+  <body class={bodyClass}>
     <a class="skip-link button" href="#main-content">跳至主要內容</a>
     <SiteHeader />
     <main id="main-content" tabindex="-1">

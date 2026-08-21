@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 
 const auditedRoutes = [
   "/",
+  "/insights/self-correcting-workflows",
   "/insights/why-simon-synapse",
   "/projects/xiaosai-ai-lottery",
   "/kakeya/interactive",

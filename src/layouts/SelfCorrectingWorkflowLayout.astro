@@ -1,0 +1,1417 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import { articleJsonLd } from "../lib/seo";
+import { SITE } from "../config/site";
+
+interface Props {
+  entry: CollectionEntry<"insights">;
+  pathname: string;
+}
+
+const { entry, pathname } = Astro.props;
+const publishedLabel = new Intl.DateTimeFormat("zh-TW", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+}).format(entry.data.publishedAt);
+const jsonLd = articleJsonLd({
+  title: entry.data.title,
+  description: entry.data.seoDescription,
+  pathname,
+  publishedAt: entry.data.publishedAt,
+  updatedAt: entry.data.updatedAt,
+  image: entry.data.socialImage,
+});
+const starterPrompt = [
+  "請完成這份成果，但不要以「寫完」作為完成標準。",
+  "",
+  "完成前請依序確認：",
+  "1. 可檢查的條件是否都已通過。",
+  "2. 發現問題時，只修正被指出的位置。",
+  "3. 連續兩次卡在同一個問題時，停止並整理原因。",
+  "4. 涉及公開、付款、刪除或對外聯絡時，保留給人類核准。",
+  "",
+  "最後請回報：已驗證項目、尚未確認項目、需要我判斷的事情。",
+].join("\n");
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.seoDescription}
+  canonicalPath={pathname}
+  image={entry.data.socialImage}
+  jsonLd={jsonLd}
+  loadAds={false}
+  bodyClass="workflow-light"
+>
+  <article class="workflow-page">
+    <section class="workflow-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="signal-label">WORKFLOW NOTE · 01</p>
+          <h1>AI 做得快，<br />為什麼交付還是卡在你？</h1>
+          <p class="hero-lead">
+            問題通常不在生成速度，而在最後那段反覆確認。把「再檢查一次」變成一套看得見的流程，才能讓 AI 幫上忙，而不是多了一位需要管理的實習生。
+          </p>
+          <div class="hero-actions">
+            <a class="workflow-button primary" href="#control-room">看懂品質迴圈</a>
+            <a class="workflow-button quiet" href="#starter-kit">帶走起手式</a>
+          </div>
+          <dl class="hero-facts">
+            <div>
+              <dt>適用情境</dt>
+              <dd>文章、資料整理、程式修改</dd>
+            </div>
+            <div>
+              <dt>保留給人</dt>
+              <dd>高風險決策與最後放行</dd>
+            </div>
+          </dl>
+        </div>
+
+        <figure class="hero-console" aria-labelledby="hero-console-caption">
+          <div class="console-topline">
+            <span>QUALITY SIGNAL</span>
+            <span class="live-dot">LIVE</span>
+          </div>
+          <div class="orbit-diagram" aria-hidden="true">
+            <svg viewBox="0 0 520 520">
+              <defs>
+                <linearGradient id="orbitLine" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0" stop-color="#7048e8" />
+                  <stop offset="1" stop-color="#11b5a4" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <circle class="orbit orbit-one" cx="260" cy="260" r="178" />
+              <circle class="orbit orbit-two" cx="260" cy="260" r="118" />
+              <path class="orbit-path" d="M260 82 A178 178 0 0 1 438 260" />
+              <path class="orbit-path" d="M260 438 A178 178 0 0 1 82 260" />
+              <path class="connector" d="M166 167 L224 225 M355 168 L295 226 M354 354 L296 296 M166 353 L224 295" />
+              <circle class="core-ring" cx="260" cy="260" r="70" />
+              <circle class="core" cx="260" cy="260" r="56" />
+              <g class="diagram-label">
+                <text x="260" y="252">交付前</text>
+                <text x="260" y="278">多一次確認</text>
+              </g>
+              <g class="node node-build" filter="url(#glow)">
+                <circle cx="150" cy="150" r="27" />
+                <text x="150" y="156">做</text>
+              </g>
+              <g class="node node-check" filter="url(#glow)">
+                <circle cx="370" cy="150" r="27" />
+                <text x="370" y="156">查</text>
+              </g>
+              <g class="node node-fix" filter="url(#glow)">
+                <circle cx="370" cy="370" r="27" />
+                <text x="370" y="376">修</text>
+              </g>
+              <g class="node node-stop" filter="url(#glow)">
+                <circle cx="150" cy="370" r="27" />
+                <text x="150" y="376">停</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption id="hero-console-caption">
+            一個可靠的流程，不是一直重做；而是每次都知道下一步該查什麼、何時該停下來。
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="friction-section">
+      <div class="container friction-grid">
+        <div class="section-intro">
+          <p class="signal-label">THE FRICTION</p>
+          <h2>真正消耗你的，<br />是最後的人工追問。</h2>
+        </div>
+        <div class="friction-copy">
+          <p>
+            AI 可以很快交出一版文章、表格或程式；但你往往接著要問數字對不對、前後是否矛盾、測試是否真的通過。這份「追問清單」若只存在腦中，每一件工作都得重新做一次。
+          </p>
+          <p>
+            更好的做法不是要求 AI 更努力，而是先把驗收工作拆開：哪些能直接量測、哪些需要閱讀判斷、哪些一定要由人放行。
+          </p>
+        </div>
+        <div class="friction-meter" aria-label="人工確認負擔示意">
+          <div class="meter-heading"><span>人工確認負擔</span><strong>100%</strong></div>
+          <div class="meter-track"><span></span></div>
+          <div class="meter-note">沒有明確標準時，所有檢查都回到你身上。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="control-section" id="control-room">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="signal-label">CONTROL ROOM</p>
+            <h2>一個交付，四個明確動作。</h2>
+          </div>
+          <p>點選每個節點，看看它在解決哪一種常見卡關。</p>
+        </div>
+
+        <div class="quality-console" data-quality-console>
+          <div class="stage-list" role="group" aria-label="品質迴圈階段">
+            <button class="stage-button is-active" type="button" data-stage-button="frame" aria-pressed="true">
+              <span>01</span> 先框定
+            </button>
+            <button class="stage-button" type="button" data-stage-button="check" aria-pressed="false">
+              <span>02</span> 再檢查
+            </button>
+            <button class="stage-button" type="button" data-stage-button="repair" aria-pressed="false">
+              <span>03</span> 小範圍修補
+            </button>
+            <button class="stage-button" type="button" data-stage-button="release" aria-pressed="false">
+              <span>04</span> 放行或交接
+            </button>
+          </div>
+          <div class="stage-view">
+            <p class="stage-kicker" data-stage-kicker>01 · FRAME THE JOB</p>
+            <h3 data-stage-title>先把「完成」說成可確認的狀態。</h3>
+            <p data-stage-copy>
+              不只說「寫一篇好文章」，而是列出來源、字數、讀者與禁止事項。條件愈具體，後面的檢查愈不靠感覺。
+            </p>
+            <div class="stage-status" role="status" aria-live="polite">
+              <span class="status-mark"></span>
+              <span data-stage-status>現在先寫下：誰需要這份成果？怎樣才算可以交？</span>
+            </div>
+          </div>
+          <div class="console-radar" aria-hidden="true">
+            <span class="radar-line"></span>
+            <span class="radar-point point-one"></span>
+            <span class="radar-point point-two"></span>
+            <span class="radar-point point-three"></span>
+            <span class="radar-caption">CHECKLIST<br />READY</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layers-section">
+      <div class="container">
+        <div class="section-heading compact">
+          <div>
+            <p class="signal-label">THREE LENSES</p>
+            <h2>別讓一個回答，自己替自己打分數。</h2>
+          </div>
+          <p>把不同類型的確認，交給最合適的方式。</p>
+        </div>
+
+        <div class="lens-grid">
+          <article class="lens-card machine">
+            <div class="lens-index">A</div>
+            <svg viewBox="0 0 96 96" aria-hidden="true">
+              <path d="M22 48 40 66 75 29" />
+              <circle cx="48" cy="48" r="36" />
+            </svg>
+            <h3>能量測的，交給規則</h3>
+            <p>測試是否通過、檔案是否存在、字數是否超標，這些不要靠「看起來沒問題」。</p>
+            <ul><li>測試結果</li><li>格式檢查</li><li>欄位與檔案</li></ul>
+          </article>
+          <article class="lens-card review">
+            <div class="lens-index">B</div>
+            <svg viewBox="0 0 96 96" aria-hidden="true">
+              <path d="M21 62c9-24 22-36 38-36 8 0 13 4 16 10" />
+              <path d="m56 69 17-17 8 8-17 17-14 4z" />
+            </svg>
+            <h3>需要判讀的，換一個視角</h3>
+            <p>邏輯、重複、可讀性與來源對照，適合用獨立檢查者或另一輪審閱處理。</p>
+            <ul><li>來源一致</li><li>脈絡合理</li><li>讀者看得懂</li></ul>
+          </article>
+          <article class="lens-card release">
+            <div class="lens-index">C</div>
+            <svg viewBox="0 0 96 96" aria-hidden="true">
+              <path d="M48 15 74 25v20c0 19-11 30-26 37-15-7-26-18-26-37V25z" />
+              <path d="m35 47 9 9 18-19" />
+            </svg>
+            <h3>真正要承擔後果的，才交給人</h3>
+            <p>公開發布、付款、刪除資料與重要對外聯繫，應保留核准點，而非自動放行。</p>
+            <ul><li>風險升級</li><li>例外處理</li><li>最終決策</li></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="risk-section">
+      <div class="container risk-layout">
+        <div class="risk-copy">
+          <p class="signal-label">HUMAN HANDOFF</p>
+          <h2>不是把人移出流程，<br />而是把人放回正確位置。</h2>
+          <p>
+            自動化最有價值的地方，是替你處理可重複驗證的細節；真正需要經驗、責任與判斷的地方，則應該留下明確的人類交接點。
+          </p>
+        </div>
+        <div class="risk-board" aria-label="風險與人工確認程度">
+          <div class="risk-row low">
+            <span class="risk-level">低風險</span>
+            <strong>自動完成</strong>
+            <p>錯字、格式、局部測試</p>
+          </div>
+          <div class="risk-row medium">
+            <span class="risk-level">中風險</span>
+            <strong>人工看最後一眼</strong>
+            <p>文章、提案、競品整理</p>
+          </div>
+          <div class="risk-row high">
+            <span class="risk-level">高風險</span>
+            <strong>先核准，再執行</strong>
+            <p>發布、付款、刪除、外部通知</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="starter-section" id="starter-kit">
+      <div class="container starter-grid">
+        <div>
+          <p class="signal-label">START SMALL</p>
+          <h2>今天就能開始的<br />一張工作指令卡。</h2>
+          <p>
+            不需要先建立複雜系統。先挑一個每週重複發生、又總要你複查的任務，將完成條件與停止條件寫清楚。
+          </p>
+          <ol class="starter-steps">
+            <li><span>1</span> 選一份低風險成果。</li>
+            <li><span>2</span> 寫下可驗證的完成條件。</li>
+            <li><span>3</span> 限制修正次數，留下交接出口。</li>
+          </ol>
+        </div>
+        <div class="prompt-card">
+          <div class="prompt-card-top">
+            <span>READY-TO-ADAPT</span>
+            <button class="copy-button" type="button" data-copy-template>複製文字</button>
+          </div>
+          <pre data-starter-template><code>{starterPrompt}</code></pre>
+          <p class="copy-status" data-copy-status role="status" aria-live="polite">可依你的工具、任務與風險調整。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing-section">
+      <div class="container closing-card">
+        <p class="signal-label">ONE LAST CHECK</p>
+        <h2>好的 AI 協作，不是多跑幾輪。<br />而是每一輪都有理由。</h2>
+        <p>
+          當成果、檢查、修補與放行被拆開後，AI 才能從一次性的回答工具，慢慢變成可靠的工作夥伴。人類不必盯著每一個細節，但仍握有最重要的判斷。
+        </p>
+        <a class="workflow-button primary" href="/insights">繼續閱讀 Simon Synapse 文章</a>
+      </div>
+    </section>
+
+    <footer class="workflow-sources container">
+      <div>
+        <p class="signal-label">SOURCE TRAIL</p>
+        <h2>閱讀與查核線索</h2>
+      </div>
+      <ul>
+        <li><a href="https://x.com/aitech_komoriya/status/2088118607343743055" target="_blank" rel="noreferrer">閱讀原始貼文</a></li>
+        <li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noreferrer">Anthropic：Building effective agents</a></li>
+        <li><a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" target="_blank" rel="noreferrer">Anthropic：Demystifying evals for AI agents</a></li>
+      </ul>
+      <p class="disclosure">作者：{SITE.author}　·　發布：{publishedLabel}　·　AI 協作揭露：本頁由 AI 協助整理與設計，內容經人工編修後發布。</p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script>
+  const stages = {
+    frame: {
+      kicker: "01 · FRAME THE JOB",
+      title: "先把「完成」說成可確認的狀態。",
+      copy: "不只說「寫一篇好文章」，而是列出來源、字數、讀者與禁止事項。條件愈具體，後面的檢查愈不靠感覺。",
+      status: "現在先寫下：誰需要這份成果？怎樣才算可以交？",
+    },
+    check: {
+      kicker: "02 · CHECK THE EVIDENCE",
+      title: "把可驗證的事情，交給可驗證的檢查。",
+      copy: "數字是否有來源、程式是否通過測試、檔案是否存在，都應留下可回查的結果，而不是只接受一句「我確認過了」。",
+      status: "現在要問：這一項有沒有能回看的依據？",
+    },
+    repair: {
+      kicker: "03 · REPAIR THE SIGNAL",
+      title: "只修問題點，不把正常部分一起推倒。",
+      copy: "重新生成整份成果看似快速，卻常讓原本正確的地方失效。將修正範圍縮小，才能減少新的意外。",
+      status: "現在要做：把最新問題，精準交回負責修正的人。",
+    },
+    release: {
+      kicker: "04 · RELEASE OR HAND OFF",
+      title: "通過才放行；卡住就交接，不無限重跑。",
+      copy: "設定修正次數與升級條件。碰到來源不足、條件衝突或高風險行為時，清楚地把問題交回人類。",
+      status: "最後確認：可以放行，還是需要一個人作決定？",
+    },
+  };
+
+  const stageButtons = Array.from(document.querySelectorAll("[data-stage-button]"));
+  const stageKicker = document.querySelector("[data-stage-kicker]");
+  const stageTitle = document.querySelector("[data-stage-title]");
+  const stageCopy = document.querySelector("[data-stage-copy]");
+  const stageStatus = document.querySelector("[data-stage-status]");
+
+  stageButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.getAttribute("data-stage-button");
+      if (!key || !(key in stages)) return;
+      const stage = stages[key as keyof typeof stages];
+
+      stageButtons.forEach((candidate) => {
+        const isActive = candidate === button;
+        candidate.classList.toggle("is-active", isActive);
+        candidate.setAttribute("aria-pressed", String(isActive));
+      });
+      if (stageKicker) stageKicker.textContent = stage.kicker;
+      if (stageTitle) stageTitle.textContent = stage.title;
+      if (stageCopy) stageCopy.textContent = stage.copy;
+      if (stageStatus) stageStatus.textContent = stage.status;
+    });
+  });
+
+  const copyButton = document.querySelector<HTMLButtonElement>("[data-copy-template]");
+  const template = document.querySelector<HTMLElement>("[data-starter-template]");
+  const copyStatus = document.querySelector("[data-copy-status]");
+
+  copyButton?.addEventListener("click", async () => {
+    const text = template?.textContent?.trim();
+    if (!text || !navigator.clipboard) {
+      if (copyStatus) copyStatus.textContent = "你的瀏覽器不支援自動複製，請直接選取文字。";
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      if (copyStatus) copyStatus.textContent = "已複製，可直接貼到你的工作工具中調整。";
+    } catch {
+      if (copyStatus) copyStatus.textContent = "無法自動複製，請直接選取文字。";
+    }
+  });
+</script>
+
+<style>
+  :global(body.workflow-light) {
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --surface-glass: rgb(255 255 255 / 84%);
+    --border: rgb(15 32 66 / 14%);
+    --border-strong: rgb(65 88 162 / 42%);
+    --text: #10213e;
+    --text-muted: #52627c;
+    --cyan: #1368a8;
+    --cyan-strong: #0b4d88;
+    --violet: #5d3ec7;
+    --magenta: #bd367f;
+    --focus: #d77400;
+    --shadow-glow: 0 1.25rem 3.5rem rgb(33 60 113 / 9%);
+    color-scheme: light;
+    background: #f4f7fb;
+    color: var(--text);
+  }
+
+  :global(body.workflow-light::before) {
+    z-index: 0;
+    background-image:
+      linear-gradient(rgb(22 68 129 / 4%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(22 68 129 / 4%) 1px, transparent 1px);
+    background-size: 3.5rem 3.5rem;
+    mask-image: linear-gradient(to bottom, black 10%, transparent 72%);
+  }
+
+  :global(body.workflow-light .site-header) {
+    border-bottom-color: rgb(21 48 93 / 10%);
+    background: rgb(248 250 254 / 88%);
+    box-shadow: 0 0.6rem 1.5rem rgb(26 51 94 / 6%);
+  }
+
+  :global(body.workflow-light .site-header .brand),
+  :global(body.workflow-light .site-header summary),
+  :global(body.workflow-light .site-header nav a) {
+    color: #142544;
+  }
+
+  :global(body.workflow-light .site-header nav) {
+    background: rgb(255 255 255 / 98%);
+    box-shadow: 0 1rem 2rem rgb(28 50 88 / 14%);
+  }
+
+  :global(body.workflow-light .site-header .brand svg) {
+    filter: drop-shadow(0 0 0.6rem rgb(77 110 198 / 24%));
+  }
+
+  :global(body.workflow-light .site-footer) {
+    border-top-color: rgb(21 48 93 / 12%);
+    background: #edf2fa;
+  }
+
+  :global(body.workflow-light .site-footer),
+  :global(body.workflow-light .site-footer a) {
+    color: #43526b;
+  }
+
+  .workflow-page {
+    overflow: hidden;
+    color: #10213e;
+    background:
+      radial-gradient(circle at 72% 7%, rgb(113 87 222 / 13%), transparent 27rem),
+      radial-gradient(circle at 8% 22%, rgb(0 166 153 / 10%), transparent 26rem),
+      #f4f7fb;
+  }
+
+  .workflow-page :focus-visible {
+    outline: 0.2rem solid #d77400;
+    outline-offset: 0.22rem;
+  }
+
+  .workflow-hero {
+    position: relative;
+    padding-block: clamp(3.5rem, 8vw, 7rem) clamp(4.5rem, 10vw, 9rem);
+  }
+
+  .workflow-hero::after {
+    position: absolute;
+    z-index: 0;
+    right: -16rem;
+    bottom: -19rem;
+    width: 42rem;
+    height: 42rem;
+    border: 1px solid rgb(79 65 190 / 11%);
+    border-radius: 50%;
+    box-shadow: 0 0 0 5rem rgb(79 65 190 / 3%), 0 0 0 10rem rgb(79 65 190 / 2%);
+    content: "";
+    pointer-events: none;
+  }
+
+  .hero-grid,
+  .friction-grid,
+  .risk-layout,
+  .starter-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: center;
+  }
+
+  .signal-label {
+    margin-block: 0 0.9rem;
+    color: #6654c8;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    text-wrap: pretty;
+  }
+
+  h1 {
+    max-width: 12ch;
+    margin-block-end: 1.2rem;
+    color: #10213e;
+    font-size: clamp(3rem, 6.4vw, 6.5rem);
+    letter-spacing: -0.065em;
+  }
+
+  h2 {
+    color: #10213e;
+    letter-spacing: -0.045em;
+  }
+
+  .hero-lead,
+  .section-heading > p,
+  .friction-copy,
+  .risk-copy > p,
+  .starter-grid > div > p,
+  .closing-card > p {
+    max-width: 38rem;
+    color: #52627c;
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    line-height: 1.78;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block: 2rem 2.6rem;
+  }
+
+  .workflow-button {
+    display: inline-flex;
+    min-height: 3.2rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.75rem 1.2rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
+  }
+
+  .workflow-button:hover {
+    transform: translateY(-2px);
+  }
+
+  .workflow-button.primary {
+    color: #fff;
+    background: linear-gradient(115deg, #5d3ec7, #176ea9);
+    box-shadow: 0 0.85rem 1.5rem rgb(57 68 153 / 22%);
+  }
+
+  .workflow-button.primary:hover {
+    color: #fff;
+    box-shadow: 0 1.05rem 1.8rem rgb(57 68 153 / 31%);
+  }
+
+  .workflow-button.quiet {
+    border-color: rgb(31 61 112 / 20%);
+    color: #26466f;
+    background: rgb(255 255 255 / 68%);
+  }
+
+  .hero-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    max-width: 39rem;
+    margin: 0;
+  }
+
+  .hero-facts div {
+    min-width: 0;
+    border-left: 2px solid #52a6ac;
+    padding: 0.2rem 0 0.2rem 0.85rem;
+  }
+
+  .hero-facts dt {
+    color: #60708a;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .hero-facts dd {
+    margin: 0.1rem 0 0;
+    color: #1d365e;
+    font-size: 0.92rem;
+    font-weight: 800;
+    line-height: 1.5;
+  }
+
+  .hero-console {
+    position: relative;
+    min-height: min(82vw, 34rem);
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid rgb(42 73 132 / 20%);
+    border-radius: 1.9rem;
+    padding: 1rem;
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 86%), rgb(237 242 252 / 72%)),
+      #fff;
+    box-shadow: 0 2.1rem 4.5rem rgb(35 55 102 / 14%);
+  }
+
+  .hero-console::before {
+    position: absolute;
+    inset: 3.5rem 1rem 1rem;
+    border: 1px solid rgb(75 95 158 / 9%);
+    border-radius: 1.25rem;
+    background-image:
+      linear-gradient(rgb(71 98 157 / 5%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(71 98 157 / 5%) 1px, transparent 1px);
+    background-size: 1.7rem 1.7rem;
+    content: "";
+  }
+
+  .console-topline {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #63728c;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
+  .live-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #0d7e70;
+  }
+
+  .live-dot::before {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: #13a886;
+    box-shadow: 0 0 0 0.25rem rgb(19 168 134 / 14%);
+    content: "";
+    animation: livePulse 1.8s ease-in-out infinite;
+  }
+
+  .orbit-diagram {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    min-height: min(62vw, 27rem);
+    place-items: center;
+    padding-block: 1rem;
+  }
+
+  .orbit-diagram svg {
+    width: min(100%, 31rem);
+    overflow: visible;
+  }
+
+  .orbit {
+    fill: none;
+    stroke: rgb(57 81 146 / 14%);
+    stroke-width: 1.5;
+  }
+
+  .orbit-two {
+    stroke-dasharray: 5 9;
+  }
+
+  .orbit-path {
+    fill: none;
+    stroke: url(#orbitLine);
+    stroke-linecap: round;
+    stroke-width: 3;
+    stroke-dasharray: 70 760;
+    animation: orbitDash 5s linear infinite;
+  }
+
+  .connector {
+    fill: none;
+    stroke: rgb(66 92 162 / 30%);
+    stroke-width: 2;
+  }
+
+  .core-ring {
+    fill: rgb(255 255 255 / 38%);
+    stroke: rgb(84 73 196 / 34%);
+    stroke-width: 1.5;
+  }
+
+  .core {
+    fill: #162e5e;
+  }
+
+  .diagram-label text {
+    fill: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    text-anchor: middle;
+  }
+
+  .node circle {
+    fill: #fff;
+    stroke-width: 2;
+  }
+
+  .node text {
+    fill: #1b3157;
+    font-size: 18px;
+    font-weight: 800;
+    text-anchor: middle;
+  }
+
+  .node-build circle { stroke: #12a88a; }
+  .node-check circle { stroke: #5d3ec7; }
+  .node-fix circle { stroke: #2e86b9; }
+  .node-stop circle { stroke: #d77400; }
+
+  .node-build { animation: nodeLift 3.5s ease-in-out infinite 0s; }
+  .node-check { animation: nodeLift 3.5s ease-in-out infinite 0.45s; }
+  .node-fix { animation: nodeLift 3.5s ease-in-out infinite 0.9s; }
+  .node-stop { animation: nodeLift 3.5s ease-in-out infinite 1.35s; }
+
+  .hero-console figcaption {
+    position: relative;
+    z-index: 1;
+    max-width: 31rem;
+    margin: -0.25rem auto 0.4rem;
+    color: #53637c;
+    font-size: 0.88rem;
+    text-align: center;
+  }
+
+  .friction-section {
+    position: relative;
+    border-block: 1px solid rgb(26 57 109 / 10%);
+    padding-block: clamp(4rem, 8vw, 7rem);
+    background: rgb(255 255 255 / 48%);
+  }
+
+  .friction-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .friction-copy p:last-child {
+    margin-block-end: 0;
+  }
+
+  .friction-meter {
+    border: 1px solid rgb(40 68 119 / 14%);
+    border-radius: 1.2rem;
+    padding: 1.25rem;
+    background: #fff;
+    box-shadow: 0 1rem 2.4rem rgb(39 59 103 / 7%);
+  }
+
+  .meter-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: #52627c;
+    font-size: 0.92rem;
+  }
+
+  .meter-heading strong {
+    color: #a33d58;
+  }
+
+  .meter-track {
+    height: 0.8rem;
+    margin-block: 1.2rem 0.8rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e7eaf2;
+  }
+
+  .meter-track span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #f3aa52, #c84774);
+    animation: meterSweep 2.8s ease-out infinite;
+  }
+
+  .meter-note {
+    color: #64728a;
+    font-size: 0.84rem;
+  }
+
+  .control-section,
+  .layers-section,
+  .risk-section,
+  .starter-section,
+  .closing-section {
+    padding-block: clamp(4.5rem, 9vw, 8rem);
+  }
+
+  .control-section {
+    background:
+      radial-gradient(circle at 94% 15%, rgb(76 174 177 / 15%), transparent 23rem),
+      #f4f7fb;
+  }
+
+  .section-heading {
+    display: grid;
+    gap: 1rem;
+    margin-block-end: 2.1rem;
+  }
+
+  .section-heading h2,
+  .section-intro h2,
+  .risk-copy h2,
+  .starter-grid h2,
+  .closing-card h2,
+  .workflow-sources h2 {
+    margin-block-end: 0;
+    font-size: clamp(2.1rem, 4.5vw, 4.5rem);
+  }
+
+  .section-heading > p {
+    margin-block-end: 0;
+  }
+
+  .quality-console {
+    display: grid;
+    overflow: hidden;
+    border: 1px solid rgb(40 74 136 / 24%);
+    border-radius: 1.5rem;
+    background: #14274d;
+    box-shadow: 0 2rem 4rem rgb(36 54 95 / 19%);
+  }
+
+  .stage-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-bottom: 1px solid rgb(218 233 255 / 16%);
+  }
+
+  .stage-button {
+    display: flex;
+    min-width: 0;
+    min-height: 5.2rem;
+    align-items: center;
+    gap: 0.65rem;
+    border: 0;
+    border-right: 1px solid rgb(218 233 255 / 12%);
+    border-bottom: 1px solid rgb(218 233 255 / 12%);
+    padding: 0.9rem;
+    color: #c9d4eb;
+    background: transparent;
+    font-size: 0.84rem;
+    font-weight: 800;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 180ms ease-out, color 180ms ease-out;
+  }
+
+  .stage-button:nth-child(even) {
+    border-right: 0;
+  }
+
+  .stage-button:nth-child(3),
+  .stage-button:nth-child(4) {
+    border-bottom: 0;
+  }
+
+  .stage-button span {
+    color: #7d91b8;
+    font-size: 0.72rem;
+  }
+
+  .stage-button:hover,
+  .stage-button.is-active {
+    color: #fff;
+    background: rgb(108 91 212 / 34%);
+  }
+
+  .stage-button.is-active span {
+    color: #8de6dd;
+  }
+
+  .stage-view {
+    min-height: 19rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    color: #f5f8ff;
+  }
+
+  .stage-kicker {
+    margin-block: 0 0.75rem;
+    color: #82dfd1;
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .stage-view h3 {
+    max-width: 17ch;
+    margin-block-end: 0.8rem;
+    color: #fff;
+    font-size: clamp(1.7rem, 3.5vw, 3.1rem);
+    letter-spacing: -0.045em;
+  }
+
+  .stage-view > p:not(.stage-kicker) {
+    max-width: 37rem;
+    margin-block-end: 1.5rem;
+    color: #c4d1e8;
+  }
+
+  .stage-status {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    border-top: 1px solid rgb(218 233 255 / 16%);
+    padding-top: 1rem;
+    color: #d9e3f4;
+    font-size: 0.9rem;
+  }
+
+  .status-mark {
+    flex: 0 0 auto;
+    width: 0.65rem;
+    height: 0.65rem;
+    margin-top: 0.42rem;
+    border-radius: 50%;
+    background: #78ddd0;
+    box-shadow: 0 0 0 0.26rem rgb(120 221 208 / 16%);
+  }
+
+  .console-radar {
+    position: relative;
+    min-height: 16rem;
+    overflow: hidden;
+    border-top: 1px solid rgb(218 233 255 / 14%);
+    background:
+      linear-gradient(rgb(145 228 218 / 7%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(145 228 218 / 7%) 1px, transparent 1px),
+      radial-gradient(circle at 58% 48%, rgb(81 191 181 / 24%), transparent 3rem);
+    background-size: 1.8rem 1.8rem, 1.8rem 1.8rem, auto;
+  }
+
+  .radar-line {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    width: 75%;
+    height: 1px;
+    transform-origin: left center;
+    background: linear-gradient(90deg, transparent, #7de1d4, transparent);
+    animation: radarScan 3.6s linear infinite;
+  }
+
+  .radar-point {
+    position: absolute;
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 50%;
+    background: #b1fff3;
+    box-shadow: 0 0 0.85rem #5ce4d3;
+  }
+
+  .point-one { top: 32%; left: 34%; }
+  .point-two { top: 63%; left: 64%; animation: pointBlink 1.7s ease-in-out infinite; }
+  .point-three { top: 42%; right: 14%; animation: pointBlink 1.9s ease-in-out infinite 0.45s; }
+
+  .radar-caption {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1rem;
+    color: #8ed8d0;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  .layers-section {
+    background: #fff;
+  }
+
+  .lens-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .lens-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 23rem;
+    border: 1px solid rgb(30 57 105 / 13%);
+    border-radius: 1.4rem;
+    padding: 1.5rem;
+    background: #fff;
+    box-shadow: 0 1.2rem 2.7rem rgb(31 51 89 / 7%);
+  }
+
+  .lens-card::after {
+    position: absolute;
+    right: -3rem;
+    bottom: -4rem;
+    width: 12rem;
+    height: 12rem;
+    border-radius: 50%;
+    content: "";
+  }
+
+  .lens-card.machine::after { background: rgb(19 168 134 / 10%); }
+  .lens-card.review::after { background: rgb(93 62 199 / 10%); }
+  .lens-card.release::after { background: rgb(215 116 0 / 10%); }
+
+  .lens-index {
+    position: relative;
+    z-index: 1;
+    color: #63718a;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  .lens-card svg {
+    position: relative;
+    z-index: 1;
+    width: 4.6rem;
+    height: 4.6rem;
+    margin-block: 1.7rem 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 3;
+  }
+
+  .lens-card.machine { color: #0d806f; }
+  .lens-card.review { color: #5d3ec7; }
+  .lens-card.release { color: #b55d04; }
+
+  .lens-card h3,
+  .lens-card p,
+  .lens-card ul {
+    position: relative;
+    z-index: 1;
+  }
+
+  .lens-card h3 {
+    color: #16345b;
+    font-size: 1.48rem;
+  }
+
+  .lens-card p {
+    color: #52627c;
+    font-size: 0.98rem;
+  }
+
+  .lens-card ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 1rem 0 0;
+    list-style: none;
+  }
+
+  .lens-card li {
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.18rem 0.62rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .risk-section {
+    background:
+      linear-gradient(130deg, rgb(238 244 252 / 88%), rgb(249 250 255 / 92%)),
+      #eef4fc;
+  }
+
+  .risk-board {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .risk-row {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 0.35rem 1rem;
+    align-items: baseline;
+    border: 1px solid rgb(32 59 105 / 14%);
+    border-left-width: 0.45rem;
+    border-radius: 0.8rem;
+    padding: 1.1rem;
+    background: rgb(255 255 255 / 80%);
+  }
+
+  .risk-row.low { border-left-color: #13a886; }
+  .risk-row.medium { border-left-color: #d58625; }
+  .risk-row.high { border-left-color: #bd4d5d; }
+
+  .risk-level {
+    color: #5a6981;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .risk-row strong {
+    color: #18355d;
+  }
+
+  .risk-row p {
+    grid-column: 2;
+    margin: 0;
+    color: #64728a;
+    font-size: 0.87rem;
+  }
+
+  .starter-section {
+    background: #132750;
+  }
+
+  .starter-section .signal-label,
+  .starter-section h2 {
+    color: #fff;
+  }
+
+  .starter-section .signal-label {
+    color: #82dfd1;
+  }
+
+  .starter-grid > div > p {
+    color: #c4d1e8;
+  }
+
+  .starter-steps {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    margin: 1.8rem 0 0;
+    list-style: none;
+    color: #ecf2ff;
+  }
+
+  .starter-steps li {
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+  }
+
+  .starter-steps span {
+    display: grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid #6e9dcd;
+    border-radius: 50%;
+    color: #9ce3dc;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .prompt-card {
+    overflow: hidden;
+    border: 1px solid rgb(187 211 248 / 24%);
+    border-radius: 1.25rem;
+    background: #0c1d3d;
+    box-shadow: 0 1.6rem 3rem rgb(5 12 30 / 28%);
+  }
+
+  .prompt-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid rgb(195 217 252 / 14%);
+    padding: 0.9rem 1rem;
+    color: #8ca7cb;
+    font-size: 0.71rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+  }
+
+  .copy-button {
+    min-height: 2.35rem;
+    border: 1px solid rgb(145 217 210 / 46%);
+    border-radius: 999px;
+    padding: 0.4rem 0.75rem;
+    color: #d8fff9;
+    background: rgb(99 218 206 / 12%);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 180ms ease-out, transform 180ms ease-out;
+  }
+
+  .copy-button:hover {
+    background: rgb(99 218 206 / 24%);
+    transform: translateY(-1px);
+  }
+
+  .prompt-card pre {
+    max-height: 27rem;
+    margin: 0;
+    overflow: auto;
+    padding: 1.25rem;
+    color: #d9e6fb;
+    font-family: "Cascadia Code", "Consolas", monospace;
+    font-size: 0.84rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .copy-status {
+    min-height: 3.1rem;
+    margin: 0;
+    border-top: 1px solid rgb(195 217 252 / 12%);
+    padding: 0.85rem 1.25rem;
+    color: #92a6c6;
+    font-size: 0.78rem;
+  }
+
+  .closing-section {
+    background: #fff;
+  }
+
+  .closing-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgb(35 65 119 / 14%);
+    border-radius: 1.5rem;
+    padding: clamp(2rem, 6vw, 5rem);
+    background:
+      radial-gradient(circle at 92% 18%, rgb(93 62 199 / 17%), transparent 17rem),
+      radial-gradient(circle at 75% 105%, rgb(10 166 142 / 14%), transparent 19rem),
+      #f9fbff;
+    box-shadow: 0 1.5rem 3rem rgb(32 51 91 / 8%);
+  }
+
+  .closing-card h2 {
+    max-width: 23ch;
+  }
+
+  .closing-card > p {
+    max-width: 44rem;
+    margin-block: 1.25rem 1.8rem;
+  }
+
+  .workflow-sources {
+    display: grid;
+    gap: 1rem;
+    padding-block: 1rem 4.5rem;
+  }
+
+  .workflow-sources h2 {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+  }
+
+  .workflow-sources ul {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .workflow-sources li {
+    border-bottom: 1px solid rgb(32 57 101 / 10%);
+    padding-block: 0.65rem;
+  }
+
+  .workflow-sources a {
+    color: #245a95;
+    font-weight: 700;
+  }
+
+  .disclosure {
+    max-width: 48rem;
+    color: #66748c;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+
+  @keyframes livePulse {
+    50% { box-shadow: 0 0 0 0.5rem rgb(19 168 134 / 0%); }
+  }
+
+  @keyframes orbitDash {
+    to { stroke-dashoffset: -830; }
+  }
+
+  @keyframes nodeLift {
+    50% { transform: translateY(-7px); }
+  }
+
+  @keyframes meterSweep {
+    50% { filter: saturate(1.35) brightness(1.06); }
+  }
+
+  @keyframes radarScan {
+    0% { transform: rotate(-27deg) scaleX(0.25); opacity: 0; }
+    18% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { transform: rotate(30deg) scaleX(1.12); opacity: 0; }
+  }
+
+  @keyframes pointBlink {
+    50% { opacity: 0.25; transform: scale(0.65); }
+  }
+
+  @media (min-width: 48rem) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.92fr);
+    }
+
+    .friction-grid {
+      grid-template-columns: 0.9fr 1.2fr;
+    }
+
+    .friction-meter {
+      grid-column: 2;
+    }
+
+    .section-heading {
+      grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.65fr);
+      align-items: end;
+    }
+
+    .quality-console {
+      grid-template-columns: 14rem minmax(0, 1fr) 15rem;
+    }
+
+    .stage-list {
+      grid-template-columns: 1fr;
+      border-right: 1px solid rgb(218 233 255 / 16%);
+      border-bottom: 0;
+    }
+
+    .stage-button,
+    .stage-button:nth-child(even) {
+      border-right: 0;
+      border-bottom: 1px solid rgb(218 233 255 / 12%);
+    }
+
+    .stage-button:nth-child(4) {
+      border-bottom: 0;
+    }
+
+    .console-radar {
+      border-top: 0;
+      border-left: 1px solid rgb(218 233 255 / 14%);
+    }
+
+    .lens-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .risk-layout,
+    .starter-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(24rem, 1fr);
+    }
+
+    .workflow-sources {
+      grid-template-columns: 0.8fr 1.2fr;
+      align-items: start;
+    }
+
+    .workflow-sources .disclosure {
+      grid-column: 2;
+    }
+  }
+
+  @media (max-width: 29.99rem) {
+    .hero-facts {
+      grid-template-columns: 1fr;
+    }
+
+    .stage-button {
+      padding-inline: 0.65rem;
+      font-size: 0.76rem;
+    }
+
+    .prompt-card-top {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot::before,
+    .orbit-path,
+    .node-build,
+    .node-check,
+    .node-fix,
+    .node-stop,
+    .meter-track span,
+    .radar-line,
+    .point-two,
+    .point-three {
+      animation: none;
+    }
+  }
+</style>

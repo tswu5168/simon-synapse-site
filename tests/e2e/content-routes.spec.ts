@@ -9,6 +9,7 @@ const publishedProjectSlugs = [
 ];
 const previewOnlyProjectSlugs = ["exam-roadmap"];
 const publishedInsightSlugs = [
+  "self-correcting-workflows",
   "graph-engineering",
   "claude-code-hooks-field-manual",
   "privacy-first-local-video-compression",
@@ -126,6 +127,47 @@ test("graph engineering insight is featured and preserves its source trail", asy
       exact: true,
     }),
   ).toHaveAttribute("href", "https://x.com/0xwhrrari/status/2086784668003598356");
+});
+
+test("self-correcting workflow insight presents its interactive teaching layout", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const featured = page.locator('section[aria-labelledby="featured-heading"]');
+  await expect(
+    featured.getByRole("heading", {
+      name: "AI 做得快，為什麼交付還是卡在你？",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    featured.getByRole("link", {
+      name: "閱讀：AI 做得快，為什麼交付還是卡在你？",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/insights/self-correcting-workflows");
+
+  const response = await page.goto("/insights/self-correcting-workflows");
+  expect(response?.status()).toBe(200);
+  await expect(
+    page.getByRole("heading", {
+      name: /AI 做得快，\s*為什麼交付還是卡在你？/,
+    }),
+  ).toBeVisible();
+  await expect(page.locator("[data-quality-console]")).toBeVisible();
+  await page.getByRole("button", { name: "02 再檢查", exact: true }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "把可驗證的事情，交給可驗證的檢查。",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "閱讀原始貼文", exact: true }),
+  ).toHaveAttribute(
+    "href",
+    "https://x.com/aitech_komoriya/status/2088118607343743055",
+  );
 });
 
 test("content index routes are available", async ({ page }) => {
