@@ -9,10 +9,15 @@ export async function getStaticPaths() {
   const visible = selectVisibleEntries(entries, {
     showDrafts: import.meta.env.PUBLIC_SHOW_DRAFTS === "true",
   });
-  return visible.map((entry) => ({
-    params: { slug: entry.id.replace(/\.(md|mdx)$/, "") },
-    props: { entry },
-  }));
+  return visible
+    .filter(
+      (entry) =>
+        entry.id.replace(/\.(md|mdx)$/, "") !== "self-correcting-workflows",
+    )
+    .map((entry) => ({
+      params: { slug: entry.id.replace(/\.(md|mdx)$/, "") },
+      props: { entry },
+    }));
 }
 
 interface Props {

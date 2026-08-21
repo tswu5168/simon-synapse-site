@@ -1,0 +1,14 @@
+---
+import { getCollection } from "astro:content";
+import SelfCorrectingWorkflowLayout from "../../layouts/SelfCorrectingWorkflowLayout.astro";
+
+const entry = (await getCollection("insights")).find(
+  (candidate) => candidate.id.replace(/\.(md|mdx)$/, "") === "self-correcting-workflows",
+);
+
+if (!entry) {
+  throw new Error("Missing self-correcting-workflows insight.");
+}
+---
+
+<SelfCorrectingWorkflowLayout entry={entry} pathname="/insights/self-correcting-workflows" />
