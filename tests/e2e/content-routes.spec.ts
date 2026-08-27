@@ -16,6 +16,7 @@ const publishedInsightSlugs = [
   "honest-prediction-models",
   "idea-to-real-product",
   "why-simon-synapse",
+  "deepseek-harness-guide",
 ];
 const previewOnlyInsightSlugs = [
   "ai-tools-as-digital-assets",
@@ -167,6 +168,39 @@ test("self-correcting workflow insight presents its interactive teaching layout"
   ).toHaveAttribute(
     "href",
     "https://x.com/aitech_komoriya/status/2088118607343743055",
+  );
+});
+
+test("DeepSeek Harness guide links to its complete accessible infographic", async ({
+  page,
+}) => {
+  const title = "AI 會想，不代表能把事情做好：看懂 DeepSeek Harness";
+
+  await page.goto("/insights/deepseek-harness-guide");
+  await expect(
+    page.getByRole("heading", { name: title, exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "開啟完整圖解：AI 會想，不代表它能把事情做好",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/learning/deepseek-harness/index.html");
+
+  const response = await page.goto("/learning/deepseek-harness/index.html");
+  expect(response?.status()).toBe(200);
+  await expect(page).toHaveTitle(
+    "AI 會想，不代表能把事情做好｜看懂 DeepSeek Harness",
+  );
+  await expect(
+    page.getByRole("heading", {
+      name: "AI 會想，不代表它能把事情做好",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://simonsynapse.net/learning/deepseek-harness/",
   );
 });
 

@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="以一般人聽得懂的方式，認識 AI Agent、Harness、工具權限、工作紀錄與可靠的實作流程。">
+  <link rel="canonical" href="https://simonsynapse.net/learning/deepseek-harness/">
+  <title>AI 會想，不代表能把事情做好｜看懂 DeepSeek Harness</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f8ff;
+      --muted: #b6c3dc;
+      --paper: #07101f;
+      --paper-2: #0c1930;
+      --panel: #10233e;
+      --line: #2b456c;
+      --cyan: #69e8ff;
+      --violet: #b6a1ff;
+      --lime: #c8f584;
+      --orange: #ffbd77;
+      --rose: #ff98c8;
+      --shadow: 0 18px 44px rgba(0, 0, 0, .24);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 10% 3%, rgba(105, 232, 255, .13), transparent 28rem),
+        radial-gradient(circle at 92% 18%, rgba(182, 161, 255, .14), transparent 26rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      font-size: 20px;
+      line-height: 1.9;
+    }
+
+    a { color: var(--cyan); text-underline-offset: .18em; }
+    a:hover { color: #d2f9ff; }
+    a:focus-visible { outline: 3px solid var(--lime); outline-offset: 4px; border-radius: 4px; }
+
+    .skip-link {
+      position: absolute;
+      top: -4rem;
+      left: 1rem;
+      z-index: 10;
+      padding: .55rem .9rem;
+      color: #03101c;
+      background: var(--lime);
+      border-radius: 8px;
+    }
+    .skip-link:focus { top: 1rem; }
+
+    .shell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+
+    .masthead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.15rem 0;
+      border-bottom: 1px solid rgba(182, 195, 220, .22);
+      font-size: .83rem;
+      letter-spacing: .05em;
+    }
+
+    .brand { color: var(--ink); text-decoration: none; font-weight: 800; }
+    .issue { color: var(--muted); }
+
+    .hero { padding: 4.9rem 0 2.4rem; }
+    .eyebrow {
+      display: inline-flex;
+      gap: .55rem;
+      align-items: center;
+      margin: 0 0 1rem;
+      color: var(--cyan);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+    }
+    .eyebrow::before { content: ""; width: .75rem; height: .75rem; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 18px var(--cyan); }
+
+    h1, h2, h3 { line-height: 1.2; letter-spacing: .01em; }
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: clamp(2.35rem, 6vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -.045em;
+    }
+    .gradient-text {
+      background: linear-gradient(100deg, var(--cyan), #9cb9ff 47%, var(--violet));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .dek { max-width: 850px; margin: 1.6rem 0 0; color: #d5e0f6; font-size: clamp(1.05rem, 2.3vw, 1.35rem); }
+    .byline { margin-top: 1.35rem; color: var(--muted); font-size: .88rem; }
+
+    .nav-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 16, 31, .86);
+      border-top: 1px solid rgba(182, 195, 220, .18);
+      border-bottom: 1px solid rgba(182, 195, 220, .18);
+    }
+    .nav {
+      display: flex;
+      gap: .25rem;
+      overflow-x: auto;
+      padding: .45rem 0;
+      scrollbar-width: thin;
+    }
+    .nav a {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: .35rem .82rem;
+      color: #d9e4fa;
+      border-radius: 999px;
+      font-size: .82rem;
+      text-decoration: none;
+    }
+    .nav a:hover { background: rgba(105, 232, 255, .13); color: var(--cyan); }
+
+    main { padding: 3.2rem 0 5rem; }
+    article { max-width: 900px; margin: 0 auto; }
+    .intro, .section { margin-bottom: 4rem; }
+    h2 { margin: 0 0 1.25rem; font-size: clamp(1.55rem, 4vw, 2.55rem); }
+    h3 { margin: 0; font-size: 1.12rem; }
+    p { margin: 0 0 1.2rem; }
+    .lead { color: #eff5ff; font-size: 1.22rem; }
+    .muted { color: var(--muted); }
+
+    .callout {
+      margin: 2rem 0;
+      padding: 1.4rem 1.5rem;
+      border-left: 5px solid var(--cyan);
+      background: linear-gradient(115deg, rgba(105, 232, 255, .12), rgba(182, 161, 255, .08));
+      border-radius: 0 var(--radius) var(--radius) 0;
+      box-shadow: var(--shadow);
+    }
+    .callout strong { color: var(--cyan); }
+
+    .term-grid, .principle-grid, .step-grid { display: grid; gap: 1rem; }
+    .term-grid { grid-template-columns: repeat(3, 1fr); margin: 1.8rem 0 2.2rem; }
+    .principle-grid { grid-template-columns: repeat(2, 1fr); }
+    .step-grid { grid-template-columns: repeat(3, 1fr); }
+    .card {
+      min-height: 100%;
+      padding: 1.35rem;
+      background: linear-gradient(145deg, rgba(20, 43, 73, .96), rgba(12, 25, 48, .96));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .card p { margin: .65rem 0 0; color: #d2def4; font-size: .94rem; }
+    .term-label, .number {
+      display: inline-block;
+      margin-bottom: .62rem;
+      color: var(--cyan);
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+    }
+    .number { color: var(--lime); }
+
+    figure { margin: 2.5rem 0; }
+    .infographic {
+      overflow: hidden;
+      padding: clamp(1rem, 3vw, 2rem);
+      background: linear-gradient(145deg, #102440, #081426 70%);
+      border: 1px solid #31547e;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+    .infographic svg { display: block; width: 100%; height: auto; }
+    figcaption { margin-top: .85rem; color: var(--muted); font-size: .88rem; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: .6rem 1rem; margin: 1.15rem 0 0; color: #d7e5fb; font-size: .82rem; }
+    .legend span { display: inline-flex; align-items: center; gap: .42rem; }
+    .dot { width: .72rem; height: .72rem; border-radius: 50%; }
+
+    .mobile-infographic { display: none; }
+
+    ul, ol { margin: 1rem 0 1.5rem; padding-left: 1.35rem; }
+    li { margin: .55rem 0; }
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li { position: relative; padding-left: 1.65rem; }
+    .checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--lime); font-weight: 900; }
+
+    .process {
+      display: grid;
+      gap: 0;
+      margin: 2.1rem 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--paper-2);
+    }
+    .process-item {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 1rem;
+      padding: 1.2rem 1.25rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .process-item:last-child { border-bottom: 0; }
+    .process-index {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      color: #06111f;
+      background: var(--cyan);
+      border-radius: 50%;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-weight: 900;
+    }
+    .process-item p { margin: .25rem 0 0; color: #d2def4; font-size: .94rem; }
+
+    .quote {
+      margin: 2.2rem 0;
+      padding: 1.6rem 0 1.6rem 1.35rem;
+      border-left: 4px solid var(--violet);
+      color: #ecedff;
+      font-size: 1.25rem;
+      line-height: 1.65;
+    }
+
+    .source-box {
+      padding: 1.45rem;
+      background: rgba(16, 35, 62, .76);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: .88rem;
+    }
+    .source-box h2 { margin-bottom: .85rem; font-size: 1.15rem; color: var(--ink); }
+    .source-box ul { margin-bottom: 0; }
+
+    footer { padding: 2rem 0 3.5rem; color: var(--muted); border-top: 1px solid rgba(182, 195, 220, .2); font-size: .84rem; }
+
+    @media (max-width: 720px) {
+      body { font-size: 18px; }
+      .shell { width: min(100% - 28px, 1120px); }
+      .masthead { align-items: flex-start; flex-direction: column; gap: .2rem; }
+      .hero { padding-top: 3.6rem; }
+      .term-grid, .principle-grid, .step-grid { grid-template-columns: 1fr; }
+      .process-item { grid-template-columns: 48px 1fr; padding: 1rem; }
+      .process-index { width: 40px; height: 40px; }
+      .infographic { margin-left: -2px; margin-right: -2px; padding: 1rem; border-radius: 20px; }
+      .infographic > svg, .infographic > .legend { display: none; }
+      .mobile-infographic { display: grid; gap: .72rem; }
+      .mobile-flow-item {
+        position: relative;
+        padding: .9rem .95rem .9rem 1.1rem;
+        background: #113252;
+        border: 1px solid #315d85;
+        border-radius: 15px;
+      }
+      .mobile-flow-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        left: 1.72rem;
+        bottom: -.75rem;
+        z-index: 1;
+        width: 2px;
+        height: .75rem;
+        background: var(--cyan);
+      }
+      .mobile-flow-item:nth-child(3) { background: #292250; border-color: #7466bb; }
+      .mobile-flow-item:nth-child(4), .mobile-flow-item:nth-child(5) { background: #27412e; border-color: #6a9b57; }
+      .mobile-flow-kicker { display: block; color: var(--cyan); font: 800 .74rem/1 ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .07em; }
+      .mobile-flow-item:nth-child(3) .mobile-flow-kicker { color: #d9cfff; }
+      .mobile-flow-item:nth-child(4) .mobile-flow-kicker, .mobile-flow-item:nth-child(5) .mobile-flow-kicker { color: #d9ffa8; }
+      .mobile-flow-title { display: block; margin-top: .42rem; color: var(--ink); font-weight: 800; }
+      .mobile-flow-note { display: block; margin-top: .15rem; color: #d5e1f4; font-size: .88rem; line-height: 1.6; }
+      .mobile-rollout { grid-template-columns: repeat(2, 1fr); }
+      .mobile-rollout .mobile-flow-item { min-height: 124px; }
+      .nav { margin: 0 -14px; padding-left: 14px; padding-right: 14px; }
+      .section { margin-bottom: 3.15rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章內容</a>
+
+  <header class="shell masthead">
+    <a class="brand" href="/">SIMON SYNAPSE</a>
+    <span class="issue">給非技術讀者的 AI 工作原理圖解</span>
+  </header>
+
+  <div id="top" class="shell hero">
+    <p class="eyebrow">AI AGENT，說人話</p>
+    <h1>AI 會想，<span class="gradient-text">不代表它能把事情做好</span></h1>
+    <p class="dek">從 DeepSeek Harness 看懂：當 AI 要查資料、改檔案、跑流程時，到底是誰讓它做得到，又該怎麼確保它不亂做。</p>
+    <p class="byline">依據 Russell 的原文觀點重整。本文以一般人能理解的方式重新編寫，並補上可實作的工作流程。</p>
+  </div>
+
+  <div class="nav-wrap">
+    <nav class="shell nav" aria-label="文章導覽">
+      <a href="#misunderstanding">先破除誤會</a>
+      <a href="#harness">Harness 是什麼</a>
+      <a href="#structure">系統怎麼組成</a>
+      <a href="#practice">實作流程</a>
+      <a href="#limits">使用界線</a>
+      <a href="#sources">資料來源</a>
+    </nav>
+  </div>
+
+  <main id="article" class="shell">
+    <article>
+      <section id="misunderstanding" class="intro">
+        <p class="lead">你可能已經用過會寫文案、查資料、做簡報的 AI。但只要任務變成「幫我找出檔案、修改內容、執行指令、確認結果，再把進度留下來」，事情就不再只是聊天。</p>
+        <p>這時候，模型再聰明也不夠。模型擅長理解語言與判斷下一步；但它不會天然地擁有電腦、檔案櫃、瀏覽器、行事曆或公司系統的使用權。它只能提出「我想做什麼」。真正把這個想法變成可追蹤動作的，是一套被稱為 <strong>Harness</strong> 的工作環境。</p>
+        <div class="callout"><strong>一句話先記住：</strong>模型負責想；Harness 負責讓這個想法安全地發生。兩者組合起來，才是能完成任務的 AI Agent。</div>
+
+        <div class="term-grid" aria-label="三個關鍵名詞">
+          <div class="card"><span class="term-label">MODEL</span><h3>模型</h3><p>像一位很會讀懂問題、整理資訊、提出建議的顧問。</p></div>
+          <div class="card"><span class="term-label">HARNESS</span><h3>工作環境</h3><p>像工作桌、工具箱、門禁、流程表與工作日誌的集合。</p></div>
+          <div class="card"><span class="term-label">AGENT</span><h3>AI 工作員</h3><p>模型加上工作環境後，才能在限制內一步步把任務做完。</p></div>
+        </div>
+      </section>
+
+      <section id="harness" class="section">
+        <h2>一個 AI 工作員，到底怎麼做事？</h2>
+        <p>先把它想成一位剛到職的新同事。你交辦「整理這份資料並找出異常」，他不能直接衝進資料庫。他要先知道資料在哪裡、哪些內容能看、能不能修改、改完誰來確認，以及做錯時要怎麼回報。</p>
+        <p>Harness 就是把這些規則整理好。它會把可用工具放到模型面前，檢查模型提出的動作是否符合規則，執行後回傳結果，並把過程寫進工作紀錄。DeepSeek 對這個分工的說法很直接：<strong>「Agent = Model + Harness」</strong>。官方也將 DeepSeek Harness 定位為可替換、可重組能力的開源 Agent Harness。 <a href="https://www.deepseek.com/harness/en/" target="_blank" rel="noopener noreferrer">查看官方介紹</a></p>
+
+        <figure>
+          <div class="infographic">
+            <svg viewBox="0 0 1000 530" role="img" aria-labelledby="flow-title flow-desc">
+              <title id="flow-title">AI 工作員的安全工作循環</title>
+              <desc id="flow-desc">從人類交辦任務開始，依序經過工作環境組裝、模型判斷、安全檢查、工具執行、結果紀錄，再回到下一步或結束。</desc>
+              <defs>
+                <linearGradient id="flow-bg" x1="0" x2="1"><stop stop-color="#102a48"/><stop offset="1" stop-color="#0a1729"/></linearGradient>
+                <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#69e8ff"/></marker>
+              </defs>
+              <rect x="1" y="1" width="998" height="528" rx="26" fill="url(#flow-bg)" stroke="#31547e"/>
+              <text x="55" y="66" fill="#f5f8ff" font-size="31" font-weight="800">不是一問一答，而是一個可回頭檢查的工作循環</text>
+              <text x="55" y="102" fill="#b6c3dc" font-size="20">每一個動作都要知道：誰提出、能不能做、做了什麼、下一步怎麼走。</text>
+              <path d="M185 255 H286" stroke="#69e8ff" stroke-width="4" marker-end="url(#arrow)"/>
+              <path d="M447 255 H548" stroke="#69e8ff" stroke-width="4" marker-end="url(#arrow)"/>
+              <path d="M709 255 H810" stroke="#69e8ff" stroke-width="4" marker-end="url(#arrow)"/>
+              <path d="M892 333 C892 435 506 462 324 413 C282 402 260 371 260 342" fill="none" stroke="#b6a1ff" stroke-width="4" stroke-dasharray="10 10" marker-end="url(#arrow)"/>
+              <g>
+                <rect x="45" y="188" width="140" height="145" rx="20" fill="#17365c" stroke="#69e8ff" stroke-width="2"/>
+                <text x="115" y="239" text-anchor="middle" fill="#69e8ff" font-size="20" font-weight="800">01</text>
+                <text x="115" y="276" text-anchor="middle" fill="#f5f8ff" font-size="24" font-weight="800">交辦任務</text>
+                <text x="115" y="307" text-anchor="middle" fill="#d6e3f7" font-size="17">人說清楚目標</text>
+              </g>
+              <g>
+                <rect x="307" y="188" width="140" height="145" rx="20" fill="#17365c" stroke="#69e8ff" stroke-width="2"/>
+                <text x="377" y="239" text-anchor="middle" fill="#69e8ff" font-size="20" font-weight="800">02</text>
+                <text x="377" y="276" text-anchor="middle" fill="#f5f8ff" font-size="24" font-weight="800">準備環境</text>
+                <text x="377" y="307" text-anchor="middle" fill="#d6e3f7" font-size="17">資料、工具、規則</text>
+              </g>
+              <g>
+                <rect x="569" y="188" width="140" height="145" rx="20" fill="#2f2958" stroke="#b6a1ff" stroke-width="2"/>
+                <text x="639" y="239" text-anchor="middle" fill="#d8caff" font-size="20" font-weight="800">03</text>
+                <text x="639" y="276" text-anchor="middle" fill="#f5f8ff" font-size="24" font-weight="800">模型判斷</text>
+                <text x="639" y="307" text-anchor="middle" fill="#e0dcff" font-size="17">提出下一個動作</text>
+              </g>
+              <g>
+                <rect x="831" y="188" width="140" height="145" rx="20" fill="#244230" stroke="#c8f584" stroke-width="2"/>
+                <text x="901" y="239" text-anchor="middle" fill="#d9ffa8" font-size="20" font-weight="800">04</text>
+                <text x="901" y="276" text-anchor="middle" fill="#f5f8ff" font-size="24" font-weight="800">檢查與執行</text>
+                <text x="901" y="307" text-anchor="middle" fill="#e1f3d0" font-size="17">權限、工具、結果</text>
+              </g>
+              <g filter="url(#glow)">
+                <circle cx="258" cy="387" r="10" fill="#ff98c8"/>
+                <text x="283" y="394" fill="#f4d7e7" font-size="20">把結果寫入工作紀錄；需要時回到下一步，而不是假裝已完成。</text>
+              </g>
+            </svg>
+            <div class="mobile-infographic" aria-label="AI 工作員的安全工作循環：交辦任務、準備環境、模型判斷、檢查與執行、紀錄並決定下一步。">
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">01</span><span class="mobile-flow-title">交辦任務</span><span class="mobile-flow-note">人先說清楚目標與完成條件。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">02</span><span class="mobile-flow-title">準備環境</span><span class="mobile-flow-note">給它必要的資料、工具與規則。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">03</span><span class="mobile-flow-title">模型判斷</span><span class="mobile-flow-note">它提出下一步，不會直接越權操作。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">04</span><span class="mobile-flow-title">檢查與執行</span><span class="mobile-flow-note">確認權限與工具後，才真的執行動作。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">05</span><span class="mobile-flow-title">留下紀錄</span><span class="mobile-flow-note">記住結果，再決定繼續、修正或停止。</span></div>
+            </div>
+            <div class="legend" aria-hidden="true">
+              <span><i class="dot" style="background:#69e8ff"></i>人與工作環境</span>
+              <span><i class="dot" style="background:#b6a1ff"></i>模型判斷</span>
+              <span><i class="dot" style="background:#c8f584"></i>檢查與執行</span>
+            </div>
+          </div>
+          <figcaption>資訊圖 1：一個可靠的 AI Agent 需要走完「理解、判斷、檢查、執行、記錄」；任何一環缺席，都容易把一次漂亮回答變成一次不可控操作。</figcaption>
+        </figure>
+      </section>
+
+      <section id="structure" class="section">
+        <h2>DeepSeek Harness 的重點，不在炫技，而在可組裝</h2>
+        <p>原文最值得留下的觀念，是把 AI 系統拆成可以替換的零件。模型、工具、技能、對話紀錄、沙箱、排程與畫面，不必全部綁死在一起。DeepSeek Harness 把這些能力視為插件，讓開發者能依任務挑選、替換或重新組合。官方稱這種做法為「Everything is a plugin」。 <a href="https://www.deepseek.com/harness/en/" target="_blank" rel="noopener noreferrer">官方說明</a></p>
+        <div class="principle-grid">
+          <div class="card"><span class="term-label">PLUGIN</span><h3>需要什麼，再裝什麼</h3><p>處理文件時給文件工具；做研究時給搜尋工具；高風險工作再加上驗證與人工核可。這比一開始就給 AI 所有權限更安全。</p></div>
+          <div class="card"><span class="term-label">CORDIS</span><h3>有人管理零件的上下場</h3><p>插件不是裝上去就好。它們需要被載入、互相連接，並在卸載時收乾淨。Cordis 負責這種依賴與生命週期管理。</p></div>
+          <div class="card"><span class="term-label">SESSION LOG</span><h3>留下可追查的工作日誌</h3><p>每次看過什麼資料、呼叫什麼工具、得到什麼結果，都應可追溯。中斷後才知道從哪裡恢復，而不是全部重來。</p></div>
+          <div class="card"><span class="term-label">TURN / STEP</span><h3>一件事，拆成很多步</h3><p>使用者交辦一件任務是一個「回合」；其中每次判斷、呼叫工具與取得結果，是一個「步驟」。每一步都能被檢查。</p></div>
+        </div>
+
+        <p>這種設計還有一個看似不顯眼、其實很重要的細節：模型在每一步看到的指令與背景，應該由當下任務、權限和紀錄重新組裝，而不是把一長串舊對話原封不動塞回去。這能減少 AI 帶著過時資訊繼續做錯事，也能讓不同任務維持清楚邊界。</p>
+        <p>同樣的道理也適用於「能力接縫」。上層只說「我要讀取文件」或「我要查詢資料」，下層再決定由哪個工具、哪種服務來做。未來換掉工具或供應商時，不必把整個 AI 重新打造一次。</p>
+
+        <blockquote class="quote">可靠，不是讓 AI 擁有更多工具；而是讓每一個工具的使用理由、結果與後果，都能被看見。</blockquote>
+      </section>
+
+      <section id="practice" class="section">
+        <h2>如果你要做一個 AI 工作員，實作順序應該是什麼？</h2>
+        <p>非技術讀者不需要自己寫程式，也可以用這套方法判斷一個 AI 專案是否做得踏實。不要一開始就問「能不能全自動」，先把一件小而明確的工作做對。</p>
+
+        <div class="process" aria-label="建立 AI 工作員的六個步驟">
+          <div class="process-item"><div class="process-index">1</div><div><h3>把成果說清楚</h3><p>先定義完成條件。例如「整理 10 份文件，列出重複項目與缺漏，交給人確認」，而不是模糊地說「幫我做好」。</p></div></div>
+          <div class="process-item"><div class="process-index">2</div><div><h3>只給最小必要的資料與工具</h3><p>先讓 AI 只能讀特定資料夾、只能查一個資料來源。需要修改或發送前，再另外開權限。</p></div></div>
+          <div class="process-item"><div class="process-index">3</div><div><h3>把工作拆成可驗證的小步驟</h3><p>先讀取、再整理、再提出建議、最後才執行。每一步都要有明確輸入、輸出與失敗時的處理方式。</p></div></div>
+          <div class="process-item"><div class="process-index">4</div><div><h3>安排獨立的檢查點</h3><p>產生內容的人不要同時替自己簽核。可以用規則、測試、另一個審查角色，或由人做最後確認。</p></div></div>
+          <div class="process-item"><div class="process-index">5</div><div><h3>留下可讀的工作紀錄</h3><p>至少能回答：AI 看了什麼？做了什麼？為什麼這樣做？哪一步失敗？這些紀錄是日後改善的起點。</p></div></div>
+          <div class="process-item"><div class="process-index">6</div><div><h3>先在低風險情境試跑</h3><p>先處理範例資料或副本，再逐步接近正式工作。影響金錢、公開內容或客戶資料的動作，必須保留人工閘門。</p></div></div>
+        </div>
+
+        <figure>
+          <div class="infographic">
+            <svg viewBox="0 0 1000 590" role="img" aria-labelledby="plan-title plan-desc">
+              <title id="plan-title">從交辦到驗收的 AI 工作流程</title>
+              <desc id="plan-desc">以六個連續步驟說明建立安全 AI 工作員的過程：定義、準備、規劃、執行、驗證和留存。</desc>
+              <defs>
+                <linearGradient id="rail" x1="0" x2="1"><stop stop-color="#69e8ff"/><stop offset=".5" stop-color="#b6a1ff"/><stop offset="1" stop-color="#c8f584"/></linearGradient>
+              </defs>
+              <rect x="1" y="1" width="998" height="588" rx="26" fill="#0a182a" stroke="#31547e"/>
+              <text x="54" y="70" fill="#f5f8ff" font-size="31" font-weight="800">從「幫我做」變成可落地的 AI 工作流程</text>
+              <text x="54" y="106" fill="#b6c3dc" font-size="20">先縮小範圍，再擴大權限；先驗證結果，再交給真正的工作環境。</text>
+              <path d="M146 170 H860" stroke="url(#rail)" stroke-width="9" stroke-linecap="round"/>
+              <g>
+                <circle cx="146" cy="170" r="25" fill="#69e8ff"/><text x="146" y="178" text-anchor="middle" fill="#07101f" font-size="21" font-weight="900">1</text>
+                <rect x="55" y="220" width="182" height="205" rx="18" fill="#113252" stroke="#69e8ff"/>
+                <text x="146" y="271" text-anchor="middle" fill="#69e8ff" font-size="22" font-weight="800">定義目標</text>
+                <text x="146" y="309" text-anchor="middle" fill="#e6f4ff" font-size="18">完成長什麼樣子？</text>
+                <text x="146" y="340" text-anchor="middle" fill="#b9cbe4" font-size="17">不能做什麼？</text>
+                <text x="146" y="371" text-anchor="middle" fill="#b9cbe4" font-size="17">誰負責簽核？</text>
+              </g>
+              <g>
+                <circle cx="289" cy="170" r="25" fill="#69e8ff"/><text x="289" y="178" text-anchor="middle" fill="#07101f" font-size="21" font-weight="900">2</text>
+                <rect x="198" y="220" width="182" height="205" rx="18" fill="#113252" stroke="#69e8ff"/>
+                <text x="289" y="271" text-anchor="middle" fill="#69e8ff" font-size="22" font-weight="800">最小權限</text>
+                <text x="289" y="309" text-anchor="middle" fill="#e6f4ff" font-size="18">只開必要工具</text>
+                <text x="289" y="340" text-anchor="middle" fill="#b9cbe4" font-size="17">資料範圍清楚</text>
+                <text x="289" y="371" text-anchor="middle" fill="#b9cbe4" font-size="17">先讀，再改</text>
+              </g>
+              <g>
+                <circle cx="432" cy="170" r="25" fill="#b6a1ff"/><text x="432" y="178" text-anchor="middle" fill="#07101f" font-size="21" font-weight="900">3</text>
+                <rect x="341" y="220" width="182" height="205" rx="18" fill="#292250" stroke="#b6a1ff"/>
+                <text x="432" y="271" text-anchor="middle" fill="#d9cfff" font-size="22" font-weight="800">拆小步驟</text>
+                <text x="432" y="309" text-anchor="middle" fill="#f0edff" font-size="18">每一步能檢查</text>
+                <text x="432" y="340" text-anchor="middle" fill="#d8d2f4" font-size="17">有輸入與輸出</text>
+                <text x="432" y="371" text-anchor="middle" fill="#d8d2f4" font-size="17">有失敗處理</text>
+              </g>
+              <g>
+                <circle cx="575" cy="170" r="25" fill="#b6a1ff"/><text x="575" y="178" text-anchor="middle" fill="#07101f" font-size="21" font-weight="900">4</text>
+                <rect x="484" y="220" width="182" height="205" rx="18" fill="#292250" stroke="#b6a1ff"/>
+                <text x="575" y="271" text-anchor="middle" fill="#d9cfff" font-size="22" font-weight="800">獨立驗證</text>
+                <text x="575" y="309" text-anchor="middle" fill="#f0edff" font-size="18">不要自己審自己</text>
+                <text x="575" y="340" text-anchor="middle" fill="#d8d2f4" font-size="17">規則、測試或人</text>
+                <text x="575" y="371" text-anchor="middle" fill="#d8d2f4" font-size="17">不過就退回修正</text>
+              </g>
+              <g>
+                <circle cx="718" cy="170" r="25" fill="#c8f584"/><text x="718" y="178" text-anchor="middle" fill="#07101f" font-size="21" font-weight="900">5</text>
+                <rect x="627" y="220" width="182" height="205" rx="18" fill="#27412e" stroke="#c8f584"/>
+                <text x="718" y="271" text-anchor="middle" fill="#d9ffa8" font-size="22" font-weight="800">留下日誌</text>
+                <text x="718" y="309" text-anchor="middle" fill="#eff9e4" font-size="18">可追查、可恢復</text>
+                <text x="718" y="340" text-anchor="middle" fill="#d8ecd0" font-size="17">記錄決策與結果</text>
+                <text x="718" y="371" text-anchor="middle" fill="#d8ecd0" font-size="17">出錯不必重來</text>
+              </g>
+              <g>
+                <circle cx="861" cy="170" r="25" fill="#c8f584"/><text x="861" y="178" text-anchor="middle" fill="#07101f" font-size="21" font-weight="900">6</text>
+                <rect x="770" y="220" width="182" height="205" rx="18" fill="#27412e" stroke="#c8f584"/>
+                <text x="861" y="271" text-anchor="middle" fill="#d9ffa8" font-size="22" font-weight="800">逐步上線</text>
+                <text x="861" y="309" text-anchor="middle" fill="#eff9e4" font-size="18">從低風險開始</text>
+                <text x="861" y="340" text-anchor="middle" fill="#d8ecd0" font-size="17">用副本試跑</text>
+                <text x="861" y="371" text-anchor="middle" fill="#d8ecd0" font-size="17">保留人工閘門</text>
+              </g>
+              <text x="500" y="504" text-anchor="middle" fill="#ffbd77" font-size="22" font-weight="800">最好的第一個專案：有明確輸入、低風險輸出、可被人快速驗收的小任務。</text>
+            </svg>
+            <div class="mobile-infographic mobile-rollout" aria-label="建立 AI 工作員的六個步驟：定義目標、最小權限、拆小步驟、獨立驗證、留下日誌、逐步上線。">
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">01</span><span class="mobile-flow-title">定義目標</span><span class="mobile-flow-note">先說清楚成功是什麼。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">02</span><span class="mobile-flow-title">最小權限</span><span class="mobile-flow-note">只開完成工作所需的工具。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">03</span><span class="mobile-flow-title">拆小步驟</span><span class="mobile-flow-note">每一步都能檢查。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">04</span><span class="mobile-flow-title">獨立驗證</span><span class="mobile-flow-note">不要讓它自己審自己。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">05</span><span class="mobile-flow-title">留下日誌</span><span class="mobile-flow-note">出錯時知道怎麼回復。</span></div>
+              <div class="mobile-flow-item"><span class="mobile-flow-kicker">06</span><span class="mobile-flow-title">逐步上線</span><span class="mobile-flow-note">先用副本和低風險任務試跑。</span></div>
+            </div>
+          </div>
+          <figcaption>資訊圖 2：不要從「全自動」開始。先把任務縮小、權限縮小、影響縮小，確認可靠後再慢慢擴大。</figcaption>
+        </figure>
+
+        <div class="step-grid">
+          <div class="card"><span class="number">實作提醒 A</span><h3>可平行的事，才同時做</h3><p>資料蒐集、比對來源、整理不同文件，若互不依賴，可以分開進行；真正需要比較或彙整時再集合。</p></div>
+          <div class="card"><span class="number">實作提醒 B</span><h3>讓錯誤停在小範圍</h3><p>某個資料來源失敗，不代表整個任務都要報廢。預先規定可重試、可略過、可換備案，或該交給人。</p></div>
+          <div class="card"><span class="number">實作提醒 C</span><h3>循環一定要有停止條件</h3><p>「做到滿意為止」不是規則。要先訂最大次數、時間或費用上限，以及超過上限後的處理方式。</p></div>
+        </div>
+      </section>
+
+      <section id="limits" class="section">
+        <h2>它能做很多事，但不該被當成無人值守的萬能助手</h2>
+        <p>原文也提醒了一個常被忽略的事實：可動態加入工具、呼叫外部服務、建立子 Agent，不等於可以放心放手。能力越大，越需要權限、日誌、測試與人為核可。</p>
+        <p>例如，AI 可以把幾個角色拆開：一個負責蒐集資料，一個負責整理，一個負責檢查。但每個角色應該只拿到完成工作所需的最小權限；子 Agent 即使繼承任務背景，也不應自動繼承所有敏感操作資格。</p>
+        <p>同樣地，排程與記憶也要被看清楚。提醒功能不等於企業級排程平台；能讀取先前紀錄不等於已經建立可靠、永久且合規的知識庫。這些都需要額外的資料治理、備份、存取規則與維運責任。</p>
+
+        <ul class="checklist">
+          <li>涉及金錢、公開發布、客戶資料或刪除動作時，必須有人做最後核可。</li>
+          <li>每個可改變外部世界的動作，都要先想好失敗後怎麼回復或補救。</li>
+          <li>不要把「模型很聰明」誤認成「系統很可靠」。可靠來自流程、權限與驗證。</li>
+          <li>先檢查工具是否仍在開發階段。DeepSeek Harness 目前是 <em>Developer Preview</em>，核心插件與 API 仍可能調整，不宜不經驗證就直接承擔正式生產責任。 <a href="https://www.deepseek.com/harness/en/" target="_blank" rel="noopener noreferrer">官方狀態說明</a></li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>最後，用 3 個問題判斷一個 AI 專案值不值得信任</h2>
+        <ol>
+          <li><strong>它有沒有權限邊界？</strong>你能不能清楚說出它看得到什麼、做得到什麼、絕對不能做什麼？</li>
+          <li><strong>它有沒有獨立驗證？</strong>它產出的答案、檔案或決定，有沒有規則、測試或人來做第二次確認？</li>
+          <li><strong>它出錯時能不能被接手？</strong>你能不能看到工作紀錄、知道它做到哪裡，並安全地停止、重試或恢復？</li>
+        </ol>
+        <p>如果這 3 題都答不清楚，問題通常不在模型不夠強，而在工作環境還沒設計好。</p>
+        <p>AI 的下一階段，不只是更會回答問題，而是更能在清楚規則下完成任務。Harness 的價值就在這裡：它把「一句看似聰明的回答」，變成一段可以檢查、可以修正、也可以交接的工作過程。</p>
+      </section>
+
+      <section id="sources" class="source-box">
+        <h2>資料來源與編寫說明</h2>
+        <p>本文依 Russell 的文章觀點重新編寫為面向非技術讀者的原創解說，並以 DeepSeek 官方資料核對產品定位、插件架構、可追溯工作紀錄與預覽版狀態。本文不是逐句翻譯，也不應視為正式導入或資安建議。</p>
+        <ul>
+          <li><a href="https://x.com/Russell3402/status/2092535898034630816" target="_blank" rel="noopener noreferrer">Russell 原文</a></li>
+          <li><a href="https://www.deepseek.com/harness/en/" target="_blank" rel="noopener noreferrer">DeepSeek Harness 官方介紹</a></li>
+          <li><a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener noreferrer">DeepSeek Harness 官方 GitHub</a></li>
+          <li><a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/agent-lifecycle.md" target="_blank" rel="noopener noreferrer">官方 Agent Turn 與 Step 生命週期文件</a></li>
+        </ul>
+      </section>
+    </article>
+  </main>
+
+  <footer>
+    <div class="shell">Simon Synapse · 本頁為單一檔案，可離線開啟閱讀。<a href="/insights/deepseek-harness-guide">閱讀文章導讀與來源</a></div>
+  </footer>
+</body>
+</html>
