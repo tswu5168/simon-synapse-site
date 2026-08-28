@@ -13,6 +13,7 @@ const REQUIRED_OUTPUTS = [
   "kakeya/immersive/index.html",
   "kakeya/learn/index.html",
   "learning/claude-code-hooks/index.html",
+  "learning/claude-skills-workflow/index.html",
   "learning/deepseek-harness/index.html",
   "projects/kakeya-3d-lab/index.html",
 ];

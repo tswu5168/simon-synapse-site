@@ -16,6 +16,7 @@ const publishedInsightSlugs = [
   "honest-prediction-models",
   "idea-to-real-product",
   "why-simon-synapse",
+  "claude-skills-prompt-workflow",
   "deepseek-harness-guide",
 ];
 const previewOnlyInsightSlugs = [
@@ -201,6 +202,36 @@ test("DeepSeek Harness guide links to its complete accessible infographic", asyn
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     "https://simonsynapse.net/learning/deepseek-harness/",
+  );
+});
+
+test("Claude Skills workflow guide links to its complete accessible infographic", async ({
+  page,
+}) => {
+  const title = "從雜亂想法到可用提示詞：9 個 Claude Skills 工作流程";
+
+  await page.goto("/insights/claude-skills-prompt-workflow");
+  await expect(
+    page.getByRole("heading", { name: title, exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "開啟完整資訊圖：9 個 Claude Skills 工作流程",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/learning/claude-skills-workflow/index.html");
+
+  const response = await page.goto("/learning/claude-skills-workflow/index.html");
+  expect(response?.status()).toBe(200);
+  await expect(page).toHaveTitle("9 個 Claude Skills 工作流程｜Simon Synapse");
+  await expect(
+    page.getByRole("heading", {
+      name: /9 個幫你自動撰寫提示詞的\s*Claude Skills/,
+    }),
+  ).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://simonsynapse.net/learning/claude-skills-workflow/",
   );
 });
 

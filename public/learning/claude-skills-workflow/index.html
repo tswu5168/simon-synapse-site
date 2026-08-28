@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="用九個可調整的工作步驟，將雜亂想法整理為可直接使用的 Claude 提示詞。">
+    <meta name="theme-color" content="#fffdf8">
+    <link rel="canonical" href="https://simonsynapse.net/learning/claude-skills-workflow/">
+    <title>9 個 Claude Skills 工作流程｜Simon Synapse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+TC:wght@500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fbf9f4;
+            --card-bg: #ffffff;
+            --text-dark: #111827;
+            --text-muted: #4b5563;
+            --orange: #d96338;
+            --line-color: #111827;
+            --border-card: #e5e0d8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #e5dec9;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px 15px;
+        }
+
+        .poster {
+            background: var(--bg);
+            width: 100%;
+            max-width: 900px;
+            border-radius: 24px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+            padding: 45px 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top Left Starburst */
+        .starburst {
+            position: absolute;
+            top: 40px;
+            left: 45px;
+            width: 44px;
+            height: 44px;
+            color: var(--orange);
+        }
+
+        /* Header */
+        .header {
+            margin-left: 54px;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            font-family: 'Instrument Serif', 'Noto Sans TC', serif;
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.08;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        /* Flow Diagram Container */
+        .diagram-container {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        /* SVG Connecting Lines */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Grid Layout */
+        .flow-grid {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 26px;
+        }
+
+        .flow-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-items: center;
+        }
+
+        /* Start Block */
+        .start-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 20px;
+        }
+
+        .start-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .tag-start {
+            color: var(--orange);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .start-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #1f2937;
+            margin-top: 2px;
+        }
+
+        .scribble-box {
+            width: 65px;
+            height: 65px;
+        }
+
+        /* Skill Card */
+        .skill-card {
+            background: #faf8f5;
+            border: 1.5px solid #dfd8ce;
+            border-radius: 16px;
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 150px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: transform 0.15s ease;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+            border-color: #c9bfb1;
+        }
+
+        .robot-icon {
+            width: 44px;
+            height: 38px;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .slash-cmd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--orange);
+            margin-bottom: 6px;
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.35;
+            font-weight: 500;
+        }
+
+        /* Finish Block */
+        .finish-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding-left: 14px;
+        }
+
+        .tag-finish {
+            color: var(--orange);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .finish-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #111827;
+            margin: 3px 0 6px 0;
+        }
+
+        .finish-list {
+            list-style: none;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .finish-list li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .finish-list li::before {
+            content: "•";
+            color: var(--text-dark);
+            font-weight: bold;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .poster { padding: 25px 20px; }
+            .header h1 { font-size: 34px; }
+            .flow-row { grid-template-columns: 1fr; gap: 16px; }
+            .connections-svg { display: none; }
+        }
+
+        @media print {
+            body { padding: 0; background: white; }
+            .poster { box-shadow: none; max-width: 100%; border-radius: 0; }
+        }
+
+        /* Readable workflow redesign: two larger type-scale steps */
+        :root {
+            --bg: #fffdf8;
+            --card-bg: #ffffff;
+            --surface-soft: #faf6ee;
+            --text-dark: #151c2a;
+            --text-muted: #435064;
+            --orange: #ae4628;
+            --line-color: #1d2939;
+            --border-card: #d9d1c4;
+            --space-1: 8px;
+            --space-2: 16px;
+            --space-3: 24px;
+            --space-4: 32px;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 8% 8%, #f3d9c7 0, transparent 30%),
+                radial-gradient(circle at 92% 92%, #d9e8df 0, transparent 30%),
+                #e9e1d2;
+            font-size: 18px;
+            line-height: 1.6;
+            padding: 48px 24px;
+            overflow-x: hidden;
+        }
+
+        .poster {
+            max-width: 1160px;
+            padding: clamp(32px, 5vw, 72px);
+            border: 1px solid rgba(174, 70, 40, 0.14);
+            border-radius: 32px;
+            box-shadow: 0 24px 64px rgba(42, 33, 20, 0.16);
+        }
+
+        .header {
+            display: grid;
+            grid-template-columns: 68px minmax(0, 1fr);
+            gap: var(--space-3);
+            align-items: start;
+            margin: 0 0 48px;
+        }
+
+        .starburst {
+            position: static;
+            width: 64px;
+            height: 64px;
+            margin-top: 6px;
+        }
+
+        .header-kicker,
+        .tag-start,
+        .tag-finish {
+            color: var(--orange);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.11em;
+            line-height: 1.35;
+            text-transform: uppercase;
+        }
+
+        .header h1 {
+            max-width: 18ch;
+            font-size: clamp(44px, 5.7vw, 68px);
+            letter-spacing: -0.035em;
+            line-height: 1.08;
+        }
+
+        .header h1 span {
+            display: block;
+        }
+
+        .header-lead {
+            max-width: 54ch;
+            margin-top: 16px;
+            color: var(--text-muted);
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.7;
+        }
+
+        .diagram-container {
+            margin-top: 0;
+            padding-top: 32px;
+            border-top: 2px solid var(--border-card);
+        }
+
+        .connections-svg {
+            display: none;
+        }
+
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        .flow-row {
+            display: contents;
+        }
+
+        .flow-row > :empty {
+            display: none;
+        }
+
+        .start-block {
+            order: 0;
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 20px;
+            align-items: center;
+            padding: 24px 28px;
+            border: 2px solid #efd4c2;
+            border-radius: 22px;
+            background: #fff5ed;
+        }
+
+        .start-label {
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .start-title {
+            margin-top: 4px;
+            color: var(--text-dark);
+            font-size: 22px;
+            line-height: 1.35;
+        }
+
+        .start-title small {
+            color: var(--text-muted) !important;
+            font-size: 14px !important;
+        }
+
+        .scribble-box {
+            order: -1;
+            width: 76px;
+            height: 76px;
+        }
+
+        .skill-card {
+            grid-column: auto !important;
+            min-height: 226px;
+            padding: 26px 22px;
+            border: 2px solid var(--border-card);
+            border-radius: 22px;
+            background: var(--card-bg);
+            box-shadow: 0 8px 20px rgba(47, 40, 28, 0.05);
+            justify-content: flex-start;
+            transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-4px);
+            border-color: #c4b09d;
+            box-shadow: 0 16px 30px rgba(47, 40, 28, 0.12);
+        }
+
+        .robot-icon {
+            width: 62px;
+            height: 52px;
+            margin-bottom: 14px;
+        }
+
+        .card-title {
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 20px;
+            line-height: 1.35;
+        }
+
+        .slash-cmd {
+            margin-bottom: 12px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: #fff0e8;
+            color: var(--orange);
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .card-desc {
+            max-width: 20ch;
+            color: var(--text-muted);
+            font-size: 16px;
+            line-height: 1.65;
+        }
+
+        .flow-row:nth-of-type(1) .skill-card { order: 1; }
+        .flow-row:nth-of-type(2) .skill-card:nth-child(1) { order: 2; }
+        .flow-row:nth-of-type(2) .skill-card:nth-child(2) { order: 3; }
+        .flow-row:nth-of-type(2) .skill-card:nth-child(3) { order: 4; }
+        .flow-row:nth-of-type(3) .skill-card:nth-child(1) { order: 7; }
+        .flow-row:nth-of-type(3) .skill-card:nth-child(2) { order: 6; }
+        .flow-row:nth-of-type(3) .skill-card:nth-child(3) { order: 5; }
+        .flow-row:nth-of-type(4) .skill-card:nth-child(1) { order: 8; }
+        .flow-row:nth-of-type(4) .skill-card:nth-child(2) { order: 9; }
+
+        .finish-block {
+            order: 10;
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+            gap: 28px;
+            align-items: center;
+            padding: 28px 32px;
+            border: 2px solid #c9ddd2;
+            border-radius: 22px;
+            background: #f1faf5;
+        }
+
+        .finish-title {
+            margin: 5px 0 0;
+            color: var(--text-dark);
+            font-size: 23px;
+            line-height: 1.35;
+        }
+
+        .finish-title small {
+            color: var(--text-muted) !important;
+            font-size: 15px !important;
+        }
+
+        .finish-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px 20px;
+            font-size: 16px;
+            line-height: 1.55;
+        }
+
+        .finish-list li {
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        @media (max-width: 980px) {
+            .poster {
+                max-width: 860px;
+            }
+
+            .flow-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .finish-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                font-size: 17px;
+                padding: 16px;
+            }
+
+            .poster {
+                padding: 28px 20px;
+                border-radius: 24px;
+            }
+
+            .header {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 32px;
+            }
+
+            .starburst {
+                width: 50px;
+                height: 50px;
+                margin: 0;
+            }
+
+            .header h1 {
+                font-size: clamp(40px, 12vw, 52px);
+            }
+
+            .header-lead {
+                font-size: 18px;
+            }
+
+            .diagram-container {
+                padding-top: 24px;
+            }
+
+            .flow-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .start-block,
+            .finish-block {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                padding: 22px;
+            }
+
+            .scribble-box {
+                order: 0;
+                width: 62px;
+                height: 62px;
+            }
+
+            .skill-card {
+                min-height: 0;
+                padding: 24px 18px;
+            }
+
+            .card-title {
+                font-size: 19px;
+            }
+
+            .card-desc,
+            .finish-list {
+                font-size: 16px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .skill-card {
+                transition: none;
+            }
+
+            .skill-card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<main class="poster" aria-labelledby="page-title">
+    <header class="header">
+        <svg class="starburst" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+            <path d="M12 0L13.8 8.2L20.5 3.5L16.2 10.5L24 12L16.2 13.5L20.5 20.5L13.8 15.8L12 24L10.2 15.8L3.5 20.5L7.8 13.5L0 12L7.8 10.5L3.5 3.5L10.2 8.2L12 0Z"/>
+        </svg>
+        <div class="header-copy">
+            <p class="header-kicker">Claude Skills Workflow</p>
+            <h1 id="page-title">9 個幫你自動撰寫提示詞的 <span>Claude Skills</span></h1>
+            <p class="header-lead">從雜亂想法開始，依序套用 9 個 Skills，逐步整理出可直接使用的提示詞。</p>
+        </div>
+    </header>
+
+    <!-- Diagram Flow -->
+    <div class="diagram-container" aria-label="Claude Skills 九步工作流程">
+        <!-- SVG Snake Connectors (100% Exact Flow) -->
+        <svg class="connections-svg" viewBox="0 0 800 680" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 8 5 L 0 9 z" fill="#111827" />
+                </marker>
+            </defs>
+
+            <!-- Line: Start -> 01 -->
+            <path d="M 235 60 L 390 60" fill="none" stroke="#111827" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+            <!-- Line: 01 -> 02 (Snake down and left) -->
+            <path d="M 665 60 L 730 60 Q 745 60 745 75 L 745 110 Q 745 125 730 125 L 140 125 Q 125 125 125 140 L 125 180" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 02 -> 03 -->
+            <path d="M 255 255 L 275 255" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 03 -> 04 -->
+            <path d="M 525 255 L 545 255" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 04 -> 05 (Snake down) -->
+            <path d="M 675 330 L 675 350 Q 675 365 690 365 L 760 365 Q 770 365 770 380 L 770 410 Q 770 425 760 425 L 740 425 Q 725 425 725 435 L 725 450" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 05 -> 06 -->
+            <path d="M 545 525 L 525 525" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 06 -> 07 -->
+            <path d="M 275 525 L 255 525" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 07 -> 08 (Snake down) -->
+            <path d="M 125 600 L 125 625" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 08 -> 09 -->
+            <path d="M 255 700 L 275 700" fill="none" stroke="#111827" stroke-width="2.2"/>
+
+            <!-- Line: 09 -> Finish -->
+            <path d="M 525 700 L 590 700" fill="none" stroke="#111827" stroke-width="2.2" marker-end="url(#arrow)"/>
+        </svg>
+
+        <div class="flow-grid">
+            <!-- Row 1: Start & 01 -->
+            <div class="flow-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="start-block">
+                    <div class="start-label">
+                        <span class="tag-start">START 起點</span>
+                        <span class="start-title">雜亂想法<br><small style="font-size:11px; color:#6b7280;">Messy Idea</small></span>
+                    </div>
+                    <!-- Scribble SVG -->
+                    <svg class="scribble-box" viewBox="0 0 100 100" fill="none" stroke="#111827" stroke-width="1.8" stroke-linecap="round">
+                        <path d="M25 45 Q35 15 55 30 T75 55 Q85 80 50 85 T15 65 Q10 30 40 25 T80 40 Q85 70 60 75 T30 70 Q20 50 45 40 T70 60 Q60 80 40 60 T55 35 Q70 45 60 65 T35 55"/>
+                    </svg>
+                </div>
+
+                <!-- 01. Prompt Maker -->
+                <div class="skill-card" style="grid-column: 2 / span 1;">
+                    <!-- Orange Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#d96338"/>
+                        <!-- Eyes: >< -->
+                        <text x="18" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">&gt;</text>
+                        <text x="32" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">&lt;</text>
+                    </svg>
+                    <div class="card-title">01. 提示詞架構師</div>
+                    <div class="slash-cmd">/prompt-master</div>
+                    <div class="card-desc">丟入大腦雜亂思緒<br>轉化輸出乾淨任務規格</div>
+                </div>
+
+                <div></div>
+            </div>
+
+            <!-- Row 2: 02, 03, 04 -->
+            <div class="flow-row">
+                <!-- 02. Grill Me -->
+                <div class="skill-card">
+                    <!-- Yellow Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#d4a325"/>
+                        <!-- Eyes: ?? -->
+                        <text x="19" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">?</text>
+                        <text x="31" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">?</text>
+                    </svg>
+                    <div class="card-title">02. 深度連續訪談</div>
+                    <div class="slash-cmd">/grill-me</div>
+                    <div class="card-desc">不斷追問提問<br>直到釐清所有模糊細節</div>
+                </div>
+
+                <!-- 03. How To -->
+                <div class="skill-card">
+                    <!-- Green Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#699f74"/>
+                        <!-- Eyes: •• -->
+                        <circle cx="19" cy="18" r="2.5" fill="#fff"/>
+                        <circle cx="31" cy="18" r="2.5" fill="#fff"/>
+                    </svg>
+                    <div class="card-title">03. 步驟規劃指南</div>
+                    <div class="slash-cmd">/how-to</div>
+                    <div class="card-desc">梳理繪製出你<br>尚未掌握的具體實作步驟</div>
+                </div>
+
+                <!-- 04. Optimizer 5 -->
+                <div class="skill-card">
+                    <!-- Blue Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#688cc4"/>
+                        <!-- Eyes: ** -->
+                        <text x="19" y="22" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">*</text>
+                        <text x="31" y="22" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">*</text>
+                    </svg>
+                    <div class="card-title">04. Opus 5 潤飾器</div>
+                    <div class="slash-cmd">/5</div>
+                    <div class="card-desc">深度潤飾你的 Prompt<br>專為 Opus 5 模型最佳化</div>
+                </div>
+            </div>
+
+            <!-- Row 3: 07, 06, 05 (Reverse visual order) -->
+            <div class="flow-row">
+                <!-- 07. Anti-AI -->
+                <div class="skill-card">
+                    <!-- Light Blue Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#5fa2c9"/>
+                        <!-- Eyes: xx -->
+                        <text x="19" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">x</text>
+                        <text x="31" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">x</text>
+                    </svg>
+                    <div class="card-title">07. 去除 AI 味</div>
+                    <div class="slash-cmd">/anti-ai</div>
+                    <div class="card-desc">剝除草稿中生硬的<br>AI 套話與制式痕跡</div>
+                </div>
+
+                <!-- 06. Personal Voice -->
+                <div class="skill-card">
+                    <!-- Purple Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#9f7eb2"/>
+                        <!-- Eyes: ~~ -->
+                        <text x="19" y="20" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">~</text>
+                        <text x="31" y="20" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">~</text>
+                    </svg>
+                    <div class="card-title">06. 個人專屬語調</div>
+                    <div class="slash-cmd">/personal-voice</div>
+                    <div class="card-desc">微調語氣風格<br>使其完全契合你真實的聲音</div>
+                </div>
+
+                <!-- 05. Fable Prompter -->
+                <div class="skill-card">
+                    <!-- Teal Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#4d9282"/>
+                        <!-- Eyes: !! -->
+                        <text x="19" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">!</text>
+                        <text x="31" y="21" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">!</text>
+                    </svg>
+                    <div class="card-title">05. Fable 5 潤飾器</div>
+                    <div class="slash-cmd">/fable</div>
+                    <div class="card-desc">同樣的高階精準潤飾<br>但專門適用於 Fable 5</div>
+                </div>
+            </div>
+
+            <!-- Row 4: 08, 09, Finish -->
+            <div class="flow-row">
+                <!-- 08. Write a Skill -->
+                <div class="skill-card">
+                    <!-- Pink Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#ba6378"/>
+                        <!-- Eyes: ++ -->
+                        <text x="19" y="21" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">+</text>
+                        <text x="31" y="21" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">+</text>
+                    </svg>
+                    <div class="card-title">08. 封裝為 Skill</div>
+                    <div class="slash-cmd">/write-a-skill</div>
+                    <div class="card-desc">將本次完美流程封裝<br>成為可重複調用的自訂 Skill</div>
+                </div>
+
+                <!-- 09. Hand Off -->
+                <div class="skill-card">
+                    <!-- Black Robot -->
+                    <svg class="robot-icon" viewBox="0 0 50 40">
+                        <path d="M22 2 h6 v6 h-6 z M12 8 h26 v20 h-26 z M4 16 h8 v12 h-8 z M38 16 h8 v12 h-8 z M16 28 h6 v8 h-6 z M28 28 h6 v8 h-6 z" fill="#1f2937"/>
+                        <!-- Eyes: ^^ -->
+                        <text x="19" y="22" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">^</text>
+                        <text x="31" y="22" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">^</text>
+                    </svg>
+                    <div class="card-title">09. 會話交接文件</div>
+                    <div class="slash-cmd">/handoff</div>
+                    <div class="card-desc">生成交接上下文檔案<br>直接啟動你的下一個對話</div>
+                </div>
+
+                <!-- Finish Block -->
+                <div class="finish-block">
+                    <span class="tag-finish">FINISH 終點</span>
+                    <div class="finish-title">即刻可用的完美提示詞<br><small style="font-size:11.5px; font-weight:normal; color:#6b7280;">Ready to use prompt</small></div>
+                    <ul class="finish-list">
+                        <li><strong>明確的目標</strong> (clear goal)</li>
+                        <li><strong>完整的上下文</strong> (full context)</li>
+                        <li><strong>專屬的語調</strong> (your voice)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>
