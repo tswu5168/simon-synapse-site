@@ -6,11 +6,6 @@
 
 # 此單一學習資產會嵌入 Simon Synapse 文章。
 # 例外只限這項資產；其他頁面維持禁止框架嵌入。
-/learning/claude-skills-workflow/
-  ! X-Frame-Options
-  X-Frame-Options: SAMEORIGIN
-  Content-Security-Policy: frame-ancestors 'self'
-
 /learning/claude-skills-workflow/*
   ! X-Frame-Options
   X-Frame-Options: SAMEORIGIN
