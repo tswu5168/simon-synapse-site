@@ -26,9 +26,6 @@ describe("Claude Skills workflow embed", () => {
       /\/\*\r?\n(?:.*\r?\n)*?\s+X-Frame-Options: DENY/,
     );
     expect(headers).toMatch(
-      /\/learning\/claude-skills-workflow\/\r?\n\s*! X-Frame-Options\r?\n\s*X-Frame-Options: SAMEORIGIN\r?\n\s*Content-Security-Policy: frame-ancestors 'self'/,
-    );
-    expect(headers).toMatch(
       /\/learning\/claude-skills-workflow\/\*\r?\n\s*! X-Frame-Options\r?\n\s*X-Frame-Options: SAMEORIGIN\r?\n\s*Content-Security-Policy: frame-ancestors 'self'/,
     );
   });
