@@ -163,6 +163,33 @@ svg {
   max-width: 100%;
 }
 
+.inline-infographic {
+  display: block;
+  width: min(calc(100vw - 2rem), 72.5rem);
+  height: 128rem;
+  margin: 2.5rem 50% 3rem;
+  transform: translateX(-50%);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: #fbf9f4;
+  box-shadow: var(--shadow-glow);
+}
+
+@media (max-width: 62rem) {
+  .inline-infographic {
+    height: 146.25rem;
+  }
+}
+
+@media (max-width: 43.5rem) {
+  .inline-infographic {
+    width: calc(100vw - 2rem);
+    height: 212.5rem;
+    margin-block: 2rem 2.5rem;
+    border-radius: var(--radius-md);
+  }
+}
+
 .container {
   width: min(calc(100% - 2rem), var(--content-width));
   margin-inline: auto;

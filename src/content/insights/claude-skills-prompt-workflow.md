@@ -23,7 +23,12 @@ socialImage: /images/og/simon-synapse-default.png
 
 寫提示詞最容易卡住的地方，往往不是不知道要問什麼，而是腦中的想法還沒有整理成能交代、能驗收的工作。這張圖把我常用的思考過程拆成 9 個步驟：先把想法攤開，再反覆追問、規劃、潤飾，最後留下能交給下一次對話使用的交接內容。
 
-<p><a class="button primary" href="/learning/claude-skills-workflow/index.html">開啟完整資訊圖：9 個 Claude Skills 工作流程</a></p>
+<iframe
+  class="inline-infographic"
+  title="9 個 Claude Skills 工作流程資訊圖"
+  src="/learning/claude-skills-workflow/index.html"
+  loading="eager"
+></iframe>
 
 ## 這張圖要怎麼用
 

@@ -205,24 +205,43 @@ test("DeepSeek Harness guide links to its complete accessible infographic", asyn
   );
 });
 
-test("Claude Skills workflow guide links to its complete accessible infographic", async ({
+test("Claude Skills workflow guide embeds its complete accessible infographic", async ({
   page,
 }) => {
   const title = "從雜亂想法到可用提示詞：9 個 Claude Skills 工作流程";
 
-  await page.goto("/insights/claude-skills-prompt-workflow");
+  await page.goto("/insights/claude-skills-prompt-workflow", {
+    waitUntil: "domcontentloaded",
+  });
   await expect(
     page.getByRole("heading", { name: title, exact: true }),
   ).toBeVisible();
+  const infographic = page.locator('iframe[title="9 個 Claude Skills 工作流程資訊圖"]');
+  await expect(infographic).toBeVisible();
+  await expect(infographic).toHaveAttribute(
+    "src",
+    "/learning/claude-skills-workflow/index.html",
+  );
+  const infographicFrame = infographic.contentFrame();
+  await expect(
+    infographicFrame.getByRole("heading", {
+      name: /9 個幫你自動撰寫提示詞的\s*Claude Skills/,
+    }),
+  ).toBeVisible();
+  const [frameHeight, infographicHeight] = await Promise.all([
+    infographicFrame.locator("html").evaluate((element) => element.scrollHeight),
+    infographic.evaluate((element) => element.clientHeight),
+  ]);
+  expect(infographicHeight).toBeGreaterThanOrEqual(frameHeight);
   await expect(
     page.getByRole("link", {
       name: "開啟完整資訊圖：9 個 Claude Skills 工作流程",
       exact: true,
     }),
-  ).toHaveAttribute("href", "/learning/claude-skills-workflow/index.html");
+  ).toHaveCount(0);
 
   const response = await page.goto("/learning/claude-skills-workflow/index.html");
-  expect(response?.status()).toBe(200);
+  expect([200, 304]).toContain(response?.status());
   await expect(page).toHaveTitle("9 個 Claude Skills 工作流程｜Simon Synapse");
   await expect(
     page.getByRole("heading", {
